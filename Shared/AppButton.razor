@@ -1,0 +1,24 @@
+﻿<NavLink href="@href" style="text-decoration: none">
+    <div class="appButton">
+        <div class="appIcon" style="background-color: @color">
+            <img src="@icon" draggable="false" />
+        </div>
+        <p>@name</p>
+    </div>
+</NavLink>
+
+@code {
+    [Parameter]
+    public string href { get; set; }
+
+    [Parameter]
+    public string icon { get; set; }
+
+    [Parameter]
+    public string color { get; set; }
+
+    [Parameter]
+    public string name { get; set; }
+
+
+}

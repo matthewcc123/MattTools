@@ -1,0 +1,50 @@
+﻿@using System.Timers
+@implements IDisposable
+
+<div class="clock" style="@(AlignRight ? "text-align: end;" : "")">
+    <h1>@Time</h1>
+    <p>@Date</p>
+</div>
+
+@code {
+    private string Time;
+    private string Date;
+
+    private Timer secondsTimer;
+
+    protected override void OnInitialized()
+    {
+        //Start
+        Time = DateTime.Now.ToString("HH:mm");
+        Date = DateTime.Now.ToString("dddd, MMMM d");
+
+        //one second interval
+        secondsTimer = new Timer(1000);
+        secondsTimer.Enabled = true;
+        secondsTimer.AutoReset = true;
+        secondsTimer.Elapsed += (sender, e) => UpdateTime();
+    }
+
+    private void UpdateTime()
+    {
+        Time = DateTime.Now.ToString("HH:mm");
+        Date = DateTime.Now.ToString("dddd, MMMM d");
+        InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        secondsTimer?.Dispose();
+    }
+}
+
+@code
+{
+
+    [Parameter]
+    public bool AlignRight { get; set; }
+
+}

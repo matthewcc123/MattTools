@@ -1,0 +1,42 @@
+﻿.appButton {
+    user-select: none;
+    width: 100%;
+    height: 64px;
+    border-radius: 12px;
+    padding-left: 8px;
+    display: flex;
+    align-items: center;
+    transition: .1s ease-out;
+    box-sizing: border-box;
+}
+
+.appButton:hover {
+    background: #F3F3F3;
+    transform: translateY(-2px);
+}
+
+.appButton:active {
+    background: #E0E0E0;
+    transform: translateY(0);
+}
+
+.appButton p {
+    padding-left: 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #000;
+}
+
+.appIcon {
+    width: 45px;
+    height: 45px;
+    background: #D3D3D3;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+.appIcon img {
+    width: 24px;
+    filter:invert();
+}

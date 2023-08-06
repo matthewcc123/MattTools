@@ -1,0 +1,17 @@
+﻿.clock {
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.clock h1 {
+    font-size: 2.8125rem;
+    font-weight: 900;
+    line-height: 2.8125rem;
+}
+
+.clock p {
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+}

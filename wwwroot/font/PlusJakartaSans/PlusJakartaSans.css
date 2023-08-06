@@ -1,0 +1,29 @@
+﻿/* Plus Jakarta Sans Font Face List*/
+
+@font-face {
+    font-family: 'JktSans';
+    font-style: normal;
+    font-weight: 400;
+    src: url(PlusJakartaSans-Regular.ttf) format('truetype'), url(PlusJakartaSans-Regular.woff2) format('woff2');
+}
+
+@font-face {
+    font-family: 'JktSans';
+    font-style: normal;
+    font-weight: 600;
+    src: url(PlusJakartaSans-SemiBold.ttf) format('truetype'), url(PlusJakartaSans-SemiBold.woff2) format('woff2');
+}
+
+@font-face {
+    font-family: 'JktSans';
+    font-style: normal;
+    font-weight: 700;
+    src: url(PlusJakartaSans-Bold.ttf) format('truetype'), url(PlusJakartaSans-Bold.woff2) format('woff2');
+}
+
+@font-face {
+    font-family: 'JktSans';
+    font-style: normal;
+    font-weight: 900;
+    src: url(PlusJakartaSans-ExtraBold.ttf) format('truetype'), url(PlusJakartaSans-ExtraBold.woff2) format('woff2');
+}

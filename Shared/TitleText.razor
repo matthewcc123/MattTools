@@ -1,0 +1,12 @@
+﻿<div class="title">
+    <img src="@icon" draggable="false" />
+    <h1>@text</h1>
+</div>
+
+@code
+{
+    [Parameter]
+    public string text { get; set; }
+    [Parameter]
+    public string icon { get; set; }
+}
