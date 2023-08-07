@@ -1,0 +1,43 @@
+﻿.spinner {
+    transform: translate(-50%, -50%);
+    height: 46px;
+    width: 46px;
+    box-sizing: border-box;
+    background: conic-gradient(from 90deg at 50% 50%, rgba(255,255,255,0) 8%, #000 75%);
+    border-radius: 56px;
+    animation: .5s rotate infinite linear;
+}
+
+.spinner::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  height: 26px;
+  width: 26px;
+  background: #fff;
+  border-radius: 48px;
+}
+
+.spinner::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 10px;
+  width: 10px;
+  background: #000;
+  border-radius: 100%;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

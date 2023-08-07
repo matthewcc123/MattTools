@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MattTools.Services;
+using Microsoft.Extensions.Logging;
 
 namespace MattTools;
 
@@ -20,6 +21,9 @@ public static class MauiProgram
 		builder.Services.AddBlazorWebViewDeveloperTools();
 		builder.Logging.AddDebug();
 #endif
+
+		//My Services
+		builder.Services.AddSingleton<MainLayoutService>();
 
 		return builder.Build();
 	}

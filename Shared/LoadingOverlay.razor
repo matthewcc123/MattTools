@@ -1,0 +1,50 @@
+﻿@inject MainLayoutService mainLayoutService
+
+@if (IsVisible)
+{
+    <div class="loadingOverlay @anim">
+        <div class="loadingContent">
+            <Spinner></Spinner>
+            <p>@text</p>
+        </div>
+    </div>
+}
+
+@code {
+
+    protected string anim { get; set; }
+    protected string text { get; set; }
+    protected bool IsVisible { get; set; }
+    protected override void OnInitialized()
+    {
+        mainLayoutService.OnShowLoading += Show;
+        mainLayoutService.OnHideLoading += Hide;
+    }
+
+    private async Task ChangeAnim(string anim, int delay)
+    {
+        await Task.Delay(delay);
+        this.anim = anim;
+        StateHasChanged();
+    }
+
+    public async void Show()
+    {
+        IsVisible = true;
+        text = mainLayoutService.LoadingText;
+
+        await ChangeAnim("animate flyFadeIn", 0);
+        await ChangeAnim("",250);
+    }
+
+    async public void Hide()
+    {
+        await ChangeAnim("animate flyFadeOut", 0);
+        await ChangeAnim("hidden", 250);
+
+        IsVisible = false;
+        StateHasChanged();
+
+    }
+
+}

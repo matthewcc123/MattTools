@@ -1,18 +1,62 @@
 ﻿@page "/ULIMerge"
+@inject MainLayoutService mainLayoutService
+@using System.Diagnostics;
 
-
-<div class="content center animate appearFadeInUp">
+<div class="content animate flyFadeIn">
     <div class="mainHeader" style="margin-top: 32px;">
         <TitleText icon="icon/mergeIcon.svg" text="ULI Merger"/>
         <div class="flexHorizontal" style="gap: 8px">
             <p style="margin-right: 8px">Select Invoice and Tax.</p>
-            <button>Select</button>
+            <button @onclick="Test">Select</button>
             <button>Merge</button>
         </div>
     </div>
+
+    <!--Table-->
+
+    <div class="fullsize">
+        <table>
+
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Invoice Number</th>
+                    <th>Tax Number</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @for (int i = 0; i < 10; i++)
+                {
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td>3030658131</td>
+                        <td>010.001-23.95217328</td>
+                        <td>Ready to Merge</td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    </div>
+
 </div>
 
 
 @code {
+
+    public async Task Test()
+    {
+        mainLayoutService.ShowLoading("Merging..");
+
+        await Task.Delay(1000);
+
+        Debug.WriteLine(mainLayoutService.LoadingText);
+
+        mainLayoutService.HideLoading();
+    }
 
 }

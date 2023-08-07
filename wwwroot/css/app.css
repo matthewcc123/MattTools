@@ -19,6 +19,10 @@ main {
     width: calc(100% - 64px);
 }
 
+.hidden {
+    visibility: hidden;
+}
+
 .centerContainer {
     width : max(0px, 640px);
 }
@@ -56,6 +60,48 @@ h1 {
 
 h1:focus {
     outline: none;
+}
+
+/*Table*/
+
+table {
+    width: 100%;
+    font-family: JktSans;
+    font-size: .75rem;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    text-align: left;
+}
+
+thead tr th{
+    font-weight: 700;
+}
+
+th, td {
+    padding: 16px 16px;
+}
+
+tbody tr {
+    background-color: #F8F8F8;
+    transition: .1s ease-out;
+}
+
+tbody tr:nth-of-type(odd)
+{
+    background-color: #FFFF;
+}
+
+tbody tr:hover {
+    background-color: #F3F3F3;
+    transform: translateY(-2px);
+}
+
+td:first-child {
+    border-radius: 12px 0 0 12px;
+}
+
+td:last-child {
+    border-radius: 0 12px 12px 0;
 }
 
 /*Button*/
@@ -184,16 +230,32 @@ button:active {
 }
 
 /*Animation*/
-.animate.appearFadeInUp {
-    animation-duration: .5s;
-    animation-name: FadeIn, MoveUp;
+.animate.flyFadeIn {
+    animation-duration: .25s;
+    animation-name: FadeIn, FlyIn;
     animation-fill-mode: backwards;
+    animation-timing-function: ease-out;
 }
 
-.animate.appearFadeIn {
-    animation-duration: .5s;
+.animate.fadeIn {
+    animation-duration: .25s;
     animation-name: FadeIn;
     animation-fill-mode: backwards;
+    animation-timing-function: ease-out;
+}
+
+.animate.flyFadeOut {
+    animation-duration: .25s;
+    animation-name: FadeOut, FlyOut;
+    animation-fill-mode: backwards;
+    animation-timing-function: ease-in;
+}
+
+.animate.fadeOut {
+    animation-duration: .25s;
+    animation-name: FadeOut;
+    animation-fill-mode: backwards;
+    animation-timing-function: ease-in;
 }
 
 @keyframes FadeIn {
@@ -206,12 +268,32 @@ button:active {
     }
 }
 
-@keyframes MoveUp {
+@keyframes FadeOut {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes FlyIn {
     0% {
         transform: translateY(16px)
     }
 
     100% {
         transform: translateY(0)
+    }
+}
+
+@keyframes FlyOut {
+    0% {
+        transform: translateY(0)
+    }
+
+    100% {
+        transform: translateY(-32px)
     }
 }
