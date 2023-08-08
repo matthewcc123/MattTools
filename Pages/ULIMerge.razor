@@ -1,15 +1,22 @@
 ﻿@page "/ULIMerge"
 @inject MainLayoutService mainLayoutService
+@inject ULIMergerService mergerService;
 @using System.Diagnostics;
+@using MattTools.Data;
 
 <div class="content animate flyFadeIn">
     <div class="mainHeader" style="margin-top: 32px;">
         <TitleText icon="icon/mergeIcon.svg" text="ULI Merger"/>
         <div class="flexHorizontal" style="gap: 8px">
-            <p style="margin-right: 8px">Select Invoice and Tax.</p>
-            <button @onclick="Test">Select</button>
-            <button>Merge</button>
+            <p style="margin-right: 8px">@FileCounter</p>
+            <button @onclick="PickInvoice">Select</button>
+            <button @onclick="MergeInvoice">Merge</button>
         </div>
+    </div>
+
+    <!--Bottom Text-->
+    <div class="bottomRightText">
+        <p>@(mergerService.MergePath != String.Empty ? mergerService.MergePath.Remove(mergerService.MergePath.Length-1,1) : "")</p>
     </div>
 
     <!--Table-->
@@ -28,13 +35,25 @@
 
             <tbody>
 
-                @for (int i = 0; i < 10; i++)
+                @for (int i = 0; i < mergerService.MergeFiles.Count; i++)
                 {
-                    <tr>
+                    var file = mergerService.MergeFiles[i];
+
+                    <tr class="@Status(file.mergeStatus)">
                         <td>@(i + 1)</td>
-                        <td>3030658131</td>
-                        <td>010.001-23.95217328</td>
-                        <td>Ready to Merge</td>
+                        <td>@file.InvoiceNumber</td>
+                        <td>@mergerService.TaxNumberFormat(file.TaxNumber)</td>
+                        <td>
+                            <div class="tooltip">
+                                <div class="tooltipText">
+                                    <p>Invoice File :</p>
+                                    <p>@file.InvoiceFileName</p>
+                                    <p>Tax File :</p>
+                                    <p>@file.TaxFileName</p>
+                                </div>
+                                @file.Status
+                            </div>
+                        </td>
                     </tr>
                 }
 
@@ -45,18 +64,105 @@
 
 </div>
 
+<style>
+
+    .tooltip {
+        position: relative;
+        display: inline-block;
+        cursor: help;
+    }
+
+    .tooltipText {
+        position: absolute;
+        width: 320px;
+        display: flex;
+        flex-direction: column;
+        
+        z-index: 1;
+        bottom: 100%;
+        left: -150%;
+        background-color: rgba(0,0,0,.8);
+        color: #ffff;
+        border-radius: 12px;
+
+        padding: 12px;
+        transition: opacity .5s ease-out, transform .5s ease-out;
+        opacity: 0; 
+        visibility: hidden;
+    }
+
+    .tooltipText::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: rgba(0,0,0,.8) transparent transparent transparent;
+    }
+
+    .tooltip:hover .tooltipText {
+        opacity: 1;
+        transform: translateY(-8px);
+        visibility: visible;
+    }
+
+</style>
 
 @code {
 
-    public async Task Test()
+    public string FileCounter
     {
-        mainLayoutService.ShowLoading("Merging..");
+        get
+        {
+            if (mergerService.InvoicePaths.Count > 0 || mergerService.TaxPaths.Count > 0)
+            {
+                return $"{mergerService.InvoicePaths.Count} Invoice Found | {mergerService.TaxPaths.Count} Tax Found";
+            }
+            else
+            {
+                return "Select Invoice and Tax.";
+            }
+        }
 
-        await Task.Delay(1000);
+    }
 
-        Debug.WriteLine(mainLayoutService.LoadingText);
+    public string Status(MergeStatus status)
+    {
+        switch (status)
+        {
+            default:
+                return "";
+            case MergeStatus.NotMatch:
+                return "error";
+            case MergeStatus.Ready:
+                return "";
+            case MergeStatus.Merged:
+                return "succes";
+        }
+    }
+
+    public async Task PickInvoice()
+    {
+
+        mainLayoutService.ShowLoading("Selecting File");
+
+        await Task.Run(mergerService.PickInvoices);
 
         mainLayoutService.HideLoading();
+
+    }
+
+    public async Task MergeInvoice()
+    {
+
+        mainLayoutService.ShowLoading("Merging");
+
+        await Task.Run(mergerService.MergeInvoices);
+
+        mainLayoutService.HideLoading();
+
     }
 
 }

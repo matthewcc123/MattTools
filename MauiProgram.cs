@@ -22,9 +22,10 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-		//My Services
-		builder.Services.AddSingleton<MainLayoutService>();
+        //My Services
+        builder.Services.AddSingleton<MainLayoutService>();
+        builder.Services.AddSingleton<ULIMergerService>();
 
-		return builder.Build();
+        return builder.Build();
 	}
 }

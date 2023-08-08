@@ -17,6 +17,19 @@ main {
     margin-left: 64px;
     height: 100%;
     width: calc(100% - 64px);
+    overflow-x: hidden;
+}
+
+.bottomRightText {
+    position : fixed;
+    text-align : right;
+    right: 16px;
+    bottom: 16px;
+    z-index: 1;
+
+    border-radius: 12px;
+    padding: 8px;
+    background-color: rgba(255,255,255,.5);
 }
 
 .hidden {
@@ -102,6 +115,23 @@ td:first-child {
 
 td:last-child {
     border-radius: 0 12px 12px 0;
+}
+
+/*Color*/
+.error, .error:nth-of-type(odd) {
+    background-color: #FFECEC;
+}
+
+.error:hover {
+    background-color: #FFC7C7;
+}
+
+.succes, .succes:nth-of-type(odd) {
+    background-color: #E7FFE5;
+}
+
+.succes:hover {
+    background-color: #C3FFBE;
 }
 
 /*Button*/
