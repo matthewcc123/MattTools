@@ -21,26 +21,24 @@
         mainLayoutService.OnHideLoading += Hide;
     }
 
-    private async Task ChangeAnim(string anim, int delay)
+    private void ChangeAnim(string anim)
     {
-        await Task.Delay(delay);
         this.anim = anim;
         StateHasChanged();
     }
 
-    public async void Show()
+    public void Show()
     {
         IsVisible = true;
         text = mainLayoutService.LoadingText;
 
-        await ChangeAnim("animate flyFadeIn", 0);
-        await ChangeAnim("",250);
+        ChangeAnim("animate flyFadeIn");
     }
 
     async public void Hide()
     {
-        await ChangeAnim("animate flyFadeOut", 0);
-        await ChangeAnim("hidden", 250);
+        ChangeAnim("animate flyFadeOut");
+        await Task.Delay(250);
 
         IsVisible = false;
         StateHasChanged();

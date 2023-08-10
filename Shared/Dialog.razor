@@ -1,0 +1,68 @@
+﻿@inject MainLayoutService mainLayoutService
+@using System.Diagnostics;
+
+@if (IsVisible)
+{
+    <div class="dialogOverlay @anim">
+        <div class="dialogContainer">
+            <div class="dialogTitle">@title</div>
+            <div class="dialogContent">
+                @((MarkupString) text)
+            </div>
+            <div class="dialogBottom">
+                <button @onclick="mainLayoutService.DestroyDialog">OK</button>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+
+    protected string title { get; set; }
+    protected string text { get; set; }
+    protected bool IsVisible { get; set; }
+    protected string anim { get; set; }
+
+    protected override void OnInitialized()
+    {
+        mainLayoutService.OpenDialog += Open;
+        mainLayoutService.CloseDialog += Close;
+    }
+
+
+    private void ChangeAnim(string anim)
+    {
+        this.anim = anim;
+        StateHasChanged();
+    }
+
+    private void Open()
+    {
+        IsVisible = true;
+        title = mainLayoutService.DialogList.First().title;
+        text = mainLayoutService.DialogList.First().text;
+
+        ChangeAnim("animate flyFadeIn");
+    }
+
+    private async void Close()
+    {
+        //Open another dialog left
+        if (mainLayoutService.DialogList.Count > 0)
+        {
+            ChangeAnim("");
+            await Task.Delay(100);
+            Open();
+        }
+        else
+        {
+            ChangeAnim("animate flyFadeOut");
+            await Task.Delay(250);
+
+            IsVisible = false;
+            StateHasChanged();
+        }
+    }
+
+}
