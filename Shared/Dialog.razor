@@ -52,13 +52,14 @@
         if (mainLayoutService.DialogList.Count > 0)
         {
             ChangeAnim("");
-            await Task.Delay(100);
+            await Task.Delay(10);
             Open();
         }
         else
         {
             ChangeAnim("animate flyFadeOut");
             await Task.Delay(250);
+            ChangeAnim("hidden");
 
             IsVisible = false;
             StateHasChanged();

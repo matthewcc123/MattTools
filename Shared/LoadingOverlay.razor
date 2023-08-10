@@ -39,6 +39,7 @@
     {
         ChangeAnim("animate flyFadeOut");
         await Task.Delay(250);
+        ChangeAnim("hidden");
 
         IsVisible = false;
         StateHasChanged();
