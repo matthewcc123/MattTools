@@ -7,6 +7,7 @@ public class RossumExtractorService
 {
 
     public RossumData.LoginCache loginCache;
+    public string Key { get { return loginCache.key; } }
 
     public RossumExtractorService()
     {
@@ -15,7 +16,7 @@ public class RossumExtractorService
 
     public void SaveLoginCache(string username, string key)
     {
-        loginCache.username = username;
+        loginCache.username = username?.ToLower();
         loginCache.key = key;
     }
 

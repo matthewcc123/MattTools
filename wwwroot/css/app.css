@@ -5,6 +5,17 @@
 ::after {
     margin: 0;
     padding: 0;
+    outline: none;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 12px;
+    background: #D9D9D9;
 }
 
 html, body {
@@ -23,7 +34,7 @@ main {
 .bottomRightText {
     position: fixed;
     text-align: right;
-    right: 16px;
+    right: 32px;
     bottom: 16px;
     z-index: 1;
     border-radius: 12px;
@@ -52,6 +63,11 @@ main {
     align-items: center;
 }
 
+.flexDown {
+    display: flex;
+    flex-direction: column;
+}
+
 .fullsize {
     width: 100%;
     height: 100%;
@@ -60,6 +76,12 @@ main {
 .content {
     padding: 32px;
     box-sizing: border-box;
+}
+
+.borderBox {
+    padding: 16px;
+    border: 1px solid #D9D9D9;
+    border-radius: 12px;
 }
 
 p {
@@ -76,18 +98,62 @@ h1:focus {
     outline: none;
 }
 
+label {
+    font-size: .75rem;
+    font-weight: 700;
+}
+
 /*InputField*/
 input[type=text], input[type=password] {
     border-radius: 12px;
     border: 1px solid #D9D9D9;
     height: 36px;
-    font-size: .75em;
+    font-size: .75rem;
     padding: 0px 16px 0px 16px;
     transition: border .1s ease-out;
 }
 
 input[type=text]:focus, input[type=password]:focus {
     outline: none;
+    border: 1px solid #0066FF;
+}
+
+.textareaContainer {
+    position: relative;
+    border-radius: 12px;
+    justify-content: center;
+    overflow: hidden;
+}
+
+textarea {
+        
+    height: 36px;
+    font-size: .75rem;
+    border: none;
+    padding: 12px;
+    box-sizing: border-box;
+    
+}
+
+textarea:focus
+{
+    outline: none;
+}
+
+textarea ~ .textareaFocus {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(100% - 2px);
+    height: calc(100% - 2px);
+    border: 1px solid #D9D9D9;
+    border-radius: 12px;
+    pointer-events: none;
+    transition: .2s ease-in-out;
+}
+
+textarea:hover ~ .textareaFocus, 
+textarea:focus ~ .textareaFocus {
     border: 1px solid #0066FF;
 }
 
@@ -165,6 +231,7 @@ button {
     height: 32px;
     cursor: pointer;
     transition: .1s ease-out;
+    user-select: none;
 }
 
 button:hover {
@@ -279,28 +346,28 @@ button:active {
 .animate.flyFadeIn {
     animation-duration: 250ms;
     animation-name: FadeIn, FlyIn;
-    animation-fill-mode: backwards;
+    animation-fill-mode: forwards;
     animation-timing-function: ease-out;
 }
 
 .animate.fadeIn {
     animation-duration: 250ms;
     animation-name: FadeIn;
-    animation-fill-mode: backwards;
+    animation-fill-mode: forwards;
     animation-timing-function: ease-out;
 }
 
 .animate.flyFadeOut {
     animation-duration: 250ms;
     animation-name: FadeOut, FlyOut;
-    animation-fill-mode: backwards;
+    animation-fill-mode: forwards;
     animation-timing-function: ease-in;
 }
 
 .animate.fadeOut {
     animation-duration: 250ms;
     animation-name: FadeOut;
-    animation-fill-mode: backwards;
+    animation-fill-mode: forwards;
     animation-timing-function: ease-in;
 }
 

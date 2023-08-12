@@ -4,6 +4,7 @@ namespace MattTools.Data;
 public class RossumData
 {
 
+    #region Login
     public class LoginCache
     {
         public string username;
@@ -34,6 +35,18 @@ public class RossumData
     {
         public List<string> non_field_errors { get; set; }
     }
+    #endregion
+
+    #region Logout
+
+    public class LogoutRespone
+    {
+        public bool loggedOut { get; set; }
+        public string detail { get; set; }
+        public string code { get; set; }
+    }
+
+    #endregion
 
 }
 

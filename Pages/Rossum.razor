@@ -3,53 +3,132 @@
 @inject IRossumService rossumService;
 @inject RossumExtractorService  rossumExtractor; 
 @using MattTools.Data;
+@using System.Diagnostics;
 
-<!--Bottom Text-->
-@if (rossumExtractor.loginCache.key != string.Empty)
+
+@if (rossumExtractor.Key != null)
 {
+    <!--Bottom Text-->
     <div class="bottomRightText">
         <p>@rossumExtractor.loginCache.key</p>
     </div>
-}
 
-<!--Login-->
-<div class="content center animate flyFadeIn">
+    
+    <div class="content animate flyFadeIn">
 
-    <div class="centerContainer" style="display: flex; flex-direction: column; align-items: center">
-
-        <div class="mainHeader" style="margin-top: 148px; justify-content: center">
-
-            <div style="transform:scale(1.75); margin-bottom: 16px">
-                <TitleText text="Rossum Extractor" icon="icon/rossumIcon.svg" />
+        <!--Header-->
+        <div class="mainHeader" style="margin-top: 32px;">
+            <TitleText icon="icon/rossumIcon.svg" text="Rossum Extractor"/>
+            <div class="flexHorizontal" style="gap: 8px">
+                <p style="margin-right: 8px">@rossumExtractor.loginCache.username</p>
+                <button @onclick="Logout">Log Out</button>
             </div>
-
         </div>
 
-        <div style="display: flex; flex-direction:column; margin-top: 16px; gap: 16px; width: 320px;">
-            <input type="text" placeholder="Username" @bind="loginUsername" tabindex="0"/>
-            <input type="password" placeholder="Password" @bind="loginPassword" tabindex="1" />
-            <button @onclick="Login" style="width: 100%; height: 45px">Login</button>
+        <div class="sidePanel">
+            <label>Workspace</label>
+            <Dropdown Item="@(WorkspaceList)" OnChangeValue="UpdateWorkspaceValue" />
+            <label>Queue</label>
+            <Dropdown Item="@(WorkspaceList)" OnChangeValue="UpdateWorkspaceValue" />
+            <label>Filter</label>
+            <div class="textareaContainer" style="width: 100%; height: 128px;">
+                <textarea style="height: 128px; width: 100%; resize: none;" />
+                <div class="textareaFocus"></div>
+            </div>
+            <button style="width: 100%; height: 44px;">Search</button>
+            <button style="width: 100%; height: 44px;">Extract Json</button>
+            <button style="width: 100%; height: 44px;">Extract Pdf</button>
+        </div>
+
+        <div class="listPanel">
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Uploaded At</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @for (int i = 0; i < 32; i++)
+                    {
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>3030658131</td>
+                            <td>Confirmed</td>
+                            <td>7/31/2023 2:35:34 PM</td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
         </div>
 
     </div>
-</div>
+}
+else
+{
+    <!--Login-->
+    <div class="content center animate flyFadeIn">
+
+        <div class="centerContainer" style="display: flex; flex-direction: column; align-items: center">
+
+            <div class="mainHeader" style="margin-top: 148px; justify-content: center">
+
+                <div style="transform:scale(1.75); margin-bottom: 16px">
+                    <TitleText text="Rossum Extractor" icon="icon/rossumIcon.svg" />
+                </div>
+
+            </div>
+
+            <div style="display: flex; flex-direction:column; margin-top: 16px; gap: 16px; width: 320px;">
+                <input type="text" placeholder="Username" @bind="LoginUsername"/>
+                <input type="password" placeholder="Password" @bind="LoginPassword"/>
+                <button @onclick="Login" style="width: 100%; height: 45px">Login</button>
+            </div>
+
+        </div>
+    </div>
+}
 
 @code {
 
-    public string loginUsername = "";
-    public string loginPassword = "";
+    public string LoginUsername = "";
+    public string LoginPassword = "";
+    public int WorkspaceValue = 0;
+
+    public List<string> WorkspaceList = new List<string>();
+
+    protected override void OnInitialized()
+    {
+        WorkspaceList.Add("Item 1");
+        WorkspaceList.Add("Item 2");
+        WorkspaceList.Add("Item 3");
+        WorkspaceList.Add("Item 4");
+        WorkspaceList.Add("Item 5");
+    }
+
+    public void UpdateWorkspaceValue(int value)
+    {
+        WorkspaceValue = value;
+    }
 
     public async void Login()
     {
-        if (loginUsername == "" || loginPassword == "")
+        if (LoginUsername == "" || LoginPassword == "")
         {
             mainLayoutService.CreateDialog("Error", $"Please fill the form.");
             return;
         }
 
-        mainLayoutService.ShowLoading("Loging In");
+        mainLayoutService.ShowLoading("Logging In");
 
-        RossumData.LoginRespone response = await rossumService.Login(new RossumData.LoginForm { username = loginUsername, password = loginPassword, key = null });
+        RossumData.LoginRespone response = await rossumService.Login(new RossumData.LoginForm { username = LoginUsername, password = LoginPassword, key = null });
 
         mainLayoutService.HideLoading();
 
@@ -57,14 +136,38 @@
 
         if (response.key != null)
         {
-            mainLayoutService.CreateDialog("Login Success", "Welcome " + loginUsername + "! <br> key : " + response.key);
-            rossumExtractor.SaveLoginCache(loginUsername, response.key);
+            mainLayoutService.CreateDialog("Login Success!", "Welcome " + LoginUsername + "! <br> key : " + response.key);
+            rossumExtractor.SaveLoginCache(LoginUsername, response.key);
             StateHasChanged();
         }
         else if (response.error != null)
         {
+            rossumExtractor.SaveLoginCache(null, null);
             mainLayoutService.CreateDialog("Login Failed", response.error);
         }
+
+    }
+
+    public async void Logout()
+    {
+        mainLayoutService.ShowLoading("Loging Out");
+
+        RossumData.LogoutRespone respone = await rossumService.Logout(rossumExtractor.Key);
+
+        mainLayoutService.HideLoading();
+
+        await Task.Delay(250);
+
+        if (respone.loggedOut)
+        {
+            rossumExtractor.SaveLoginCache(null, null);
+        }
+        else
+        {
+            mainLayoutService.CreateDialog("Logout Failed", respone.detail);
+        }
+
+        StateHasChanged();
 
     }
 

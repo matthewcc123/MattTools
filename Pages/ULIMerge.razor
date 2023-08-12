@@ -4,6 +4,14 @@
 @using System.Diagnostics;
 @using MattTools.Data;
 
+<!--Bottom Text-->
+@if (mergerService.MergePath != null)
+{
+    <div class="bottomRightText">
+        <p>@mergerService.MergePath.Remove(mergerService.MergePath.Length - 1, 1)</p>
+    </div>
+}
+
 <div class="content animate flyFadeIn">
     <div class="mainHeader" style="margin-top: 32px;">
         <TitleText icon="icon/mergeIcon.svg" text="ULI Merger"/>
@@ -14,17 +22,9 @@
         </div>
     </div>
 
-    <!--Bottom Text-->
-    @if (mergerService.MergePath != string.Empty)
-    {
-        <div class="bottomRightText">
-            <p>@mergerService.MergePath.Remove(mergerService.MergePath.Length - 1, 1)</p>
-        </div>
-    }
-
     <!--Table-->
 
-    <div class="fullsize">
+    <div class="listPanel">
         <table>
 
             <thead>
@@ -49,10 +49,8 @@
                         <td>
                             <div class="tooltip">
                                 <div class="tooltipText">
-                                    <p>Invoice File :</p>
-                                    <p>@((MarkupString)MarkText(file.InvoiceFileName, file.TaxNumber))</p>
-                                    <p>Tax File :</p>
-                                    <p>@((MarkupString)MarkText(file.TaxFileName, file.TaxNumber))</p>
+                                    <p>Invoice File : @((MarkupString)MarkText(file.InvoiceFileName, file.TaxNumber))</p>
+                                    <p>Tax File : @((MarkupString)MarkText(file.TaxFileName, file.TaxNumber))</p>
                                 </div>
                                 @file.Status
                             </div>
@@ -68,55 +66,10 @@
 </div>
 
 <style>
-
-    .tooltip {
-        position: relative;
-        display: inline-block;
-        cursor: help;
-    }
-
-    .tooltipText {
-        position: absolute;
-        width: 320px;
-        display: flex;
-        flex-direction: column;
-        
-        z-index: 1;
-        bottom: 100%;
-        left: -150%;
-        background-color: rgba(0,0,0,.8);
-        color: #ffff;
-        border-radius: 12px;
-        backdrop-filter: blur(2px);
-
-        padding: 12px;
-        transition: opacity .5s ease-out, transform .5s ease-out;
-        opacity: 0; 
-        visibility: hidden;
-    }
-
-    .tooltipText::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: rgba(0,0,0,.8) transparent transparent transparent;
-    }
-
-    .tooltip:hover .tooltipText {
-        opacity: 1;
-        transform: translateY(-8px);
-        visibility: visible;
-    }
-
     mark {
         background-color: #0066FF;
         color: #FFFF;
     }
-
 </style>
 
 @code {

@@ -1,0 +1,46 @@
+﻿.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+
+.tooltipText {
+    position: absolute;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+    bottom: 100%;
+    left: -150%;
+    background-color: rgba(0,0,0,.8);
+    color: #ffff;
+    border-radius: 12px;
+    backdrop-filter: blur(2px);
+    padding: 12px;
+    transition: opacity .5s ease-out, transform .5s ease-out;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.tooltipText::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: rgba(0,0,0,.8) transparent transparent transparent;
+    }
+
+.tooltip:hover .tooltipText {
+    opacity: 1;
+    transform: translateY(-8px);
+    visibility: visible;
+}
+
+.listPanel {
+    box-sizing:border-box;
+    height: calc(100vh - 164px);
+    overflow: scroll;
+}

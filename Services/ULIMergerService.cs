@@ -11,7 +11,7 @@ internal class ULIMergerService
 {
 
     public int MaxAllowedFiles = 100;
-    public string MergePath = String.Empty;
+    public string MergePath;
 
     //List
     public List<string> Errors = new();
@@ -22,6 +22,7 @@ internal class ULIMergerService
 
     public void ClearAll()
     {
+        MergePath = null;
         Errors.Clear();
         MergeFiles.Clear();
         InvoicePaths.Clear();
@@ -61,7 +62,7 @@ internal class ULIMergerService
             //Seperate Invoice File and Tax File
             foreach (var file in results)
             {
-                if (MergePath == String.Empty)
+                if (MergePath == null)
                     MergePath = file.FullPath.Replace(file.FileName, String.Empty);
 
                 SeperateFiles(file);

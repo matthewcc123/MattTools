@@ -1,0 +1,21 @@
+﻿.sidePanel {
+    margin-top : 32px;
+    width: 224px;
+    gap: 12px;
+    background: #ffff;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 16px;
+    border: 1px solid #D9D9D9;
+    border-radius: 12px;
+    position: absolute;
+}
+
+.listPanel {
+    margin-top: 32px;
+    height: calc(100vh - 196px);
+    margin-left: 224px;
+    padding-left: 32px;
+    overflow: scroll;
+}

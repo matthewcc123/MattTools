@@ -36,9 +36,6 @@ public class RossumService : IRossumService
             client.DefaultRequestHeaders.Authorization = null;
         }
 
-        Debug.WriteLine(url);
-        Debug.WriteLine(client.BaseAddress);
-
         //POST
         HttpResponseMessage response = await client.PostAsync(url, content);
 
@@ -73,5 +70,21 @@ public class RossumService : IRossumService
 
     }
 
+    public async Task<RossumData.LogoutRespone> Logout(string key)
+    {
+        string url = "auth/logout";
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token", key);
+
+        //POST
+        HttpResponseMessage response = await client.PostAsync(url, null);
+
+        string result = response.Content.ReadAsStringAsync().Result;
+        RossumData.LogoutRespone logoutRespone = JsonConvert.DeserializeObject<RossumData.LogoutRespone>(result);
+
+        if (response.IsSuccessStatusCode)
+            logoutRespone.loggedOut = true;
+
+        return logoutRespone;
+    }
 }
 

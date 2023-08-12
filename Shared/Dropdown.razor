@@ -1,0 +1,45 @@
+﻿@using System.Diagnostics;
+
+<div class="dropdown">
+    <button class="select" @onclick="ToggleList" @onfocusout="HideList">
+        @(Item.Count > 0 ? Item[Value] : "")
+    </button>
+    <ul class="list @(Show ? "listShow" : "")">
+        
+        @for (int i = 0; i < Item?.Count; i++)
+        {
+            var buttonValue = i;
+            <li @onclick="@(e => SetValue(buttonValue))" class=@(i == Value ? "selected" : "")>@Item[i]</li>
+        }
+
+    </ul>
+</div>
+
+@code {
+    public bool Show;
+    [Parameter] public int Value { get; set; }
+    [Parameter] public List<string> Item { get; set; }
+    [Parameter] public EventCallback<int> OnChangeValue { get; set; }
+
+    public void ToggleList()
+    {
+        Show = !Show;
+    }
+
+    public async void HideList()
+    {
+        await Task.Delay(100);
+        Show = false;
+        StateHasChanged();
+    }
+
+    public void SetValue(int value)
+    {
+        OnChangeValue.InvokeAsync(value);
+        Value = value;
+        Show = false;
+    }
+
+    
+
+}
