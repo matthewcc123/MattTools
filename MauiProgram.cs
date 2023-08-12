@@ -25,6 +25,13 @@ public static class MauiProgram
         //My Services
         builder.Services.AddSingleton<MainLayoutService>();
         builder.Services.AddSingleton<ULIMergerService>();
+        builder.Services.AddSingleton<RossumExtractorService>();
+
+        //HttpClient
+        builder.Services.AddHttpClient<IRossumService, RossumService>( client =>
+		{
+			client.BaseAddress = new Uri("https://example.app.rossum.ai/api/v1/");
+		});
 
         return builder.Build();
 	}

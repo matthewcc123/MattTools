@@ -1,5 +1,16 @@
 ﻿@page "/Rossum"
 @inject MainLayoutService mainLayoutService;
+@inject IRossumService rossumService;
+@inject RossumExtractorService  rossumExtractor; 
+@using MattTools.Data;
+
+<!--Bottom Text-->
+@if (rossumExtractor.loginCache.key != string.Empty)
+{
+    <div class="bottomRightText">
+        <p>@rossumExtractor.loginCache.key</p>
+    </div>
+}
 
 <!--Login-->
 <div class="content center animate flyFadeIn">
@@ -15,8 +26,8 @@
         </div>
 
         <div style="display: flex; flex-direction:column; margin-top: 16px; gap: 16px; width: 320px;">
-            <input type="text" placeholder="Username" />
-            <input type="password" placeholder="Password" />
+            <input type="text" placeholder="Username" @bind="loginUsername" tabindex="0"/>
+            <input type="password" placeholder="Password" @bind="loginPassword" tabindex="1" />
             <button @onclick="Login" style="width: 100%; height: 45px">Login</button>
         </div>
 
@@ -25,20 +36,36 @@
 
 @code {
 
-    public void Login()
-    {
-        mainLayoutService.CreateDialog("Test", "Dialog 1");
-        mainLayoutService.CreateDialog("Test2", "Dialog 2");
-        mainLayoutService.CreateDialog("Test3", "Dialog 3");
-        mainLayoutService.CreateDialog("Test4", "Dialog 4");
-        mainLayoutService.CreateDialog("Test5", "Dialog 5");
+    public string loginUsername = "";
+    public string loginPassword = "";
 
-        /*
+    public async void Login()
+    {
+        if (loginUsername == "" && loginPassword == "")
+        {
+            mainLayoutService.CreateDialog("Error", "Please fill the form.");
+            return;
+        }
+
         mainLayoutService.ShowLoading("Loging In");
 
-        await Task.Delay(3000);
+        RossumData.LoginRespone response = await rossumService.Login(new RossumData.LoginForm { username = loginUsername, password = loginPassword, key = null });
 
-        mainLayoutService.HideLoading();*/
+        mainLayoutService.HideLoading();
+
+        await Task.Delay(250);
+
+        if (response.key != null)
+        {
+            mainLayoutService.CreateDialog("Login Success", "Welcome " + loginUsername + "! <br> key : " + response.key);
+            rossumExtractor.SaveLoginCache(loginUsername, response.key);
+            StateHasChanged();
+        }
+        else if (response.error != null)
+        {
+            mainLayoutService.CreateDialog("Login Failed", response.error);
+        }
+
     }
 
 }
