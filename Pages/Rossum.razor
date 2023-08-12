@@ -41,9 +41,9 @@
 
     public async void Login()
     {
-        if (loginUsername == "" && loginPassword == "")
+        if (loginUsername == "" || loginPassword == "")
         {
-            mainLayoutService.CreateDialog("Error", "Please fill the form.");
+            mainLayoutService.CreateDialog("Error", $"Please fill the form.");
             return;
         }
 
