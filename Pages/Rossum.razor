@@ -10,7 +10,7 @@
 {
     <!--Bottom Text-->
     <div class="bottomRightText">
-        <p>@rossumExtractor.loginCache.key</p>
+        <p>@rossumExtractor.Key</p>
     </div>
 
     
@@ -20,16 +20,16 @@
         <div class="mainHeader" style="margin-top: 32px;">
             <TitleText icon="icon/rossumIcon.svg" text="Rossum Extractor"/>
             <div class="flexHorizontal" style="gap: 8px">
-                <p style="margin-right: 8px">@rossumExtractor.loginCache.username</p>
+                <p style="margin-right: 8px">@rossumExtractor.LoginCache.username</p>
                 <button @onclick="Logout">Log Out</button>
             </div>
         </div>
 
         <div class="sidePanel">
             <label>Workspace</label>
-            <Dropdown Item="@(WorkspaceList)" OnChangeValue="UpdateWorkspaceValue" />
+            <Dropdown Item="@(rossumExtractor.WorkspaceList)" Value="@(rossumExtractor.WorkspaceValue)" OnChangeValue="UpdateWorkspaceValue" />
             <label>Queue</label>
-            <Dropdown Item="@(WorkspaceList)" OnChangeValue="UpdateWorkspaceValue" />
+            <Dropdown Item="@(rossumExtractor.QueueList)" Value="@(rossumExtractor.QueueValue)" OnChangeValue="UpdateQueueValue" />
             <label>Filter</label>
             <div class="textareaContainer" style="width: 100%; height: 128px;">
                 <textarea style="height: 128px; width: 100%; resize: none;" />
@@ -100,27 +100,38 @@ else
 
     public string LoginUsername = "";
     public string LoginPassword = "";
-    public int WorkspaceValue = 0;
-
-    public List<string> WorkspaceList = new List<string>();
 
     protected override void OnInitialized()
     {
-        WorkspaceList.Add("Item 1");
-        WorkspaceList.Add("Item 2");
-        WorkspaceList.Add("Item 3");
-        WorkspaceList.Add("Item 4");
-        WorkspaceList.Add("Item 5");
+        //Load Key
+        if (rossumExtractor.LoginCache.key == null)
+        {
+            if (rossumExtractor.LoadLoginCache())
+            {
+                LoginUsername = rossumExtractor.LoginCache.username;
+                Login();
+            }
+        }
+
     }
 
-    public void UpdateWorkspaceValue(int value)
+    public async void UpdateWorkspaceValue(int value)
     {
-        WorkspaceValue = value;
+        if (value == rossumExtractor.WorkspaceValue)
+            return;
+
+        rossumExtractor.WorkspaceValue = value;
+        await GetQueueListFromWorkspace();
+    }
+
+    public void UpdateQueueValue(int value)
+    {
+        rossumExtractor.QueueValue = value;
     }
 
     public async void Login()
     {
-        if (LoginUsername == "" || LoginPassword == "")
+        if (rossumExtractor.Key == null && (LoginUsername == "" || LoginPassword == ""))
         {
             mainLayoutService.CreateDialog("Error", $"Please fill the form.");
             return;
@@ -128,21 +139,28 @@ else
 
         mainLayoutService.ShowLoading("Logging In");
 
-        RossumData.LoginRespone response = await rossumService.Login(new RossumData.LoginForm { username = LoginUsername, password = LoginPassword, key = null });
-
-        mainLayoutService.HideLoading();
-
-        await Task.Delay(250);
+        RossumData.LoginRespone response = await rossumService.Login(new RossumData.LoginForm { username = LoginUsername, password = LoginPassword, key = rossumExtractor.Key });
 
         if (response.key != null)
         {
-            mainLayoutService.CreateDialog("Login Success!", "Welcome " + LoginUsername + "! <br> key : " + response.key);
             rossumExtractor.SaveLoginCache(LoginUsername, response.key);
+
+            await GetWorkspaceList();
+            await GetQueueListFromWorkspace();
+
+            mainLayoutService.HideLoading();
+            await Task.Delay(250);
+
+            mainLayoutService.CreateDialog("Login Success!", "Welcome " + LoginUsername + "! <br> key : " + response.key);
             StateHasChanged();
         }
         else if (response.error != null)
         {
             rossumExtractor.SaveLoginCache(null, null);
+
+            mainLayoutService.HideLoading();
+            await Task.Delay(250);
+
             mainLayoutService.CreateDialog("Login Failed", response.error);
         }
 
@@ -160,7 +178,9 @@ else
 
         if (respone.loggedOut)
         {
+            LoginUsername = rossumExtractor.LoginCache.username;
             rossumExtractor.SaveLoginCache(null, null);
+            rossumExtractor.ClearLoginCache();
         }
         else
         {
@@ -169,6 +189,84 @@ else
 
         StateHasChanged();
 
+    }
+
+    public async Task GetWorkspaceList()
+    {
+        mainLayoutService.ShowLoading("Getting Workspace List");
+
+        rossumExtractor.WorkspaceDataList.Clear();
+        rossumExtractor.WorkspaceValue = 0;
+
+        RossumData.PagingObject<RossumData.WorkspaceResult> workspaces = await rossumService.GetWorkspaces(rossumExtractor.Key, null);
+
+        if (workspaces != null)
+        {
+            //Get Workspace
+            GetWorkspaceFromList(workspaces.results);
+
+            //Get Another Workspace on other Page
+            while (workspaces.pagination.next != null)
+            {
+                workspaces = await rossumService.GetWorkspaces(rossumExtractor.Key, workspaces.pagination.next.ToString());
+
+                if (workspaces != null)
+                {
+                    //Get Workspace
+                    GetWorkspaceFromList(workspaces.results);
+                }
+
+            }
+
+        }
+
+        StateHasChanged();
+        mainLayoutService.HideLoading();
+    }
+
+    public void GetWorkspaceFromList(List<RossumData.WorkspaceResult> workspaceResult)
+    {
+        //Get Workspace
+        foreach (var workspace in workspaceResult)
+        {
+            //Add to Dictonary
+            List<string> queues = new List<string>(workspace.queues);
+
+            RossumData.WorkspaceData data = new RossumData.WorkspaceData { name = workspace.name, id = workspace.id, queueURL = queues };
+            rossumExtractor.WorkspaceDataList.Add(data);
+        }
+    }
+
+    public async Task GetQueueListFromWorkspace()
+    {
+        if (rossumExtractor.WorkspaceList.Count == 0)
+            return;
+
+        mainLayoutService.ShowLoading("Getting Queue List");
+
+        rossumExtractor.QueueDataList.Clear();
+        rossumExtractor.QueueValue = 0;
+
+        //Get Selected Workspace Data
+        RossumData.WorkspaceData workspaceData = rossumExtractor.WorkspaceDataList[rossumExtractor.WorkspaceValue];
+
+        //Get Queue from Workspace
+        for (int i = 0; i < workspaceData.queueURL.Count; i++)
+        {
+            string url = workspaceData.queueURL[i];
+            RossumData.QueueResult queue = await rossumService.GetQueue(rossumExtractor.Key, url);
+
+            if (queue != null && queue.status == "active")
+            {
+                RossumData.QueueData queueData = new RossumData.QueueData { name = queue.name, id = queue.id };
+                rossumExtractor.QueueDataList.Add(queueData);   
+            }
+
+        }
+
+        StateHasChanged();
+
+        mainLayoutService.HideLoading();
     }
 
 }

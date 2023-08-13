@@ -2,9 +2,9 @@
 
 <div class="dropdown">
     <button class="select" @onclick="ToggleList" @onfocusout="HideList">
-        @(Item.Count > 0 ? Item[Value] : "")
+        @(Item.Count > 0 ? Item[Value] : "Empty")
     </button>
-    <ul class="list @(Show ? "listShow" : "")">
+    <ul class="list @(Show && Item.Count > 0 ? "listShow" : "")">
         
         @for (int i = 0; i < Item?.Count; i++)
         {

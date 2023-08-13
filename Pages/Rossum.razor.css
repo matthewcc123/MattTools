@@ -1,6 +1,6 @@
 ﻿.sidePanel {
     margin-top : 32px;
-    width: 224px;
+    width: 256px;
     gap: 12px;
     background: #ffff;
     display: flex;
@@ -15,7 +15,7 @@
 .listPanel {
     margin-top: 32px;
     height: calc(100vh - 196px);
-    margin-left: 224px;
+    margin-left: 256px;
     padding-left: 32px;
     overflow: scroll;
 }

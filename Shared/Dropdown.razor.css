@@ -10,6 +10,7 @@
 }
 
 .select {
+    text-align: left;
     position: relative;
     display: flex;
     align-items: center;
@@ -48,13 +49,14 @@
     list-style: none;
     background: #ffff;
     border: 1px solid #D9D9D9;
-    overflow: hidden;
     opacity: 0;
     transform: translateY(-5%);
     visibility: hidden;
     z-index: 1;
     transition: .15s ease-in-out;
     padding: 4px;
+    max-height: 320px;
+    overflow-y: scroll;
 }
 
 .listShow {

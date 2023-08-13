@@ -18,26 +18,50 @@ public class RossumService : IRossumService
         this.client = client;
     }
 
+    private async Task<HttpResponseMessage> POST(string url, HttpContent content, string key)
+    {
+
+        //Set Header Key
+        client.DefaultRequestHeaders.Authorization = null;
+
+        if (key != null)
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token", key);
+
+
+        //POST
+        HttpResponseMessage response = await client.PostAsync(url, content);
+
+        //Return Response
+        return response;
+    }
+
+    private async Task<HttpResponseMessage> GET(string url, string key)
+    {
+
+        //Set Header Key
+        client.DefaultRequestHeaders.Authorization = null;
+
+        if (key != null)
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token", key);
+
+
+        //POST
+        HttpResponseMessage response = await client.GetAsync(url);
+
+        //Return Response
+        return response;
+    }
+
     public async Task<RossumData.LoginRespone> Login(RossumData.LoginForm form)
     {
         string payload = JsonConvert.SerializeObject(new RossumData.LoginData { username = form.username, password = form.password } );
         HttpContent content = new StringContent(payload, Encoding.UTF8, "application/json");
 
         //Check Login Using key or Not
-        string url = "auth/login";
-
-        if (form.key != null)
-        {
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token", form.key);
-            url = "organizations/406";
-        }
-        else
-        {
-            client.DefaultRequestHeaders.Authorization = null;
-        }
+        string url = form.key == null ? "auth/login" : "organizations/406";
 
         //POST
-        HttpResponseMessage response = await client.PostAsync(url, content);
+        HttpResponseMessage response = await POST(url, content, form.key);
 
         if (response.IsSuccessStatusCode)
         {
@@ -61,9 +85,7 @@ public class RossumService : IRossumService
 
             RossumData.LoginBadRequest loginBadRequest = JsonConvert.DeserializeObject<RossumData.LoginBadRequest>(result);
 
-            Debug.WriteLine(loginBadRequest.non_field_errors[0]);
-
-            RossumData.LoginRespone loginRespone = new RossumData.LoginRespone { error = loginBadRequest.non_field_errors[0] };
+            RossumData.LoginRespone loginRespone = new RossumData.LoginRespone { error = loginBadRequest.non_field_errors?[0] };
 
             return loginRespone;
         }
@@ -73,10 +95,9 @@ public class RossumService : IRossumService
     public async Task<RossumData.LogoutRespone> Logout(string key)
     {
         string url = "auth/logout";
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token", key);
 
         //POST
-        HttpResponseMessage response = await client.PostAsync(url, null);
+        HttpResponseMessage response = await POST(url, null, key);
 
         string result = response.Content.ReadAsStringAsync().Result;
         RossumData.LogoutRespone logoutRespone = JsonConvert.DeserializeObject<RossumData.LogoutRespone>(result);
@@ -85,6 +106,38 @@ public class RossumService : IRossumService
             logoutRespone.loggedOut = true;
 
         return logoutRespone;
+    }
+
+    public async Task<RossumData.PagingObject<RossumData.WorkspaceResult>> GetWorkspaces(string key, string url)
+    {
+        RossumData.PagingObject<RossumData.WorkspaceResult> workspaces = null;
+
+
+        HttpResponseMessage response = await GET(url == null ? "workspaces" : url.Replace(client.BaseAddress.ToString(), string.Empty), key);
+
+        if (response.IsSuccessStatusCode)
+        {
+            string result = response.Content.ReadAsStringAsync().Result;
+
+            workspaces = JsonConvert.DeserializeObject<RossumData.PagingObject<RossumData.WorkspaceResult>>(result);
+        }
+
+        return workspaces;
+    }
+    public async Task<RossumData.QueueResult> GetQueue(string key, string url)
+    {
+        RossumData.QueueResult queue = null;
+
+        HttpResponseMessage response = await GET(url.Replace(client.BaseAddress.ToString(), string.Empty), key);
+
+        if (response.IsSuccessStatusCode)
+        {
+            string result = response.Content.ReadAsStringAsync().Result;
+
+            queue = JsonConvert.DeserializeObject<RossumData.QueueResult>(result);
+        }
+
+        return queue;
     }
 }
 
