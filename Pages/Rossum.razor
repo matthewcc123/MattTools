@@ -156,12 +156,14 @@ else
         }
         else if (response.error != null)
         {
+            rossumExtractor.ClearLoginCache();
             rossumExtractor.SaveLoginCache(null, null);
 
             mainLayoutService.HideLoading();
             await Task.Delay(250);
 
             mainLayoutService.CreateDialog("Login Failed", response.error);
+            StateHasChanged();
         }
 
     }

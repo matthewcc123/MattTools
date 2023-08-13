@@ -79,6 +79,12 @@ public class RossumService : IRossumService
 
             return loginRespone;
         }
+        else if (response.StatusCode == HttpStatusCode.Unauthorized && form.key != null)
+        {
+            RossumData.LoginRespone loginRespone = new RossumData.LoginRespone { error = "Token Expired" };
+
+            return loginRespone;
+        }
         else
         {
             string result = response.Content.ReadAsStringAsync().Result;
