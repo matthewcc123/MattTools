@@ -231,10 +231,12 @@ public class RossumData
     public class AnnotationData
     {
         public bool selected;
-        public int id;
+        public int annotationID;
         public int docID;
+        public int queueID;
         public string fileName;
         public string status;
+        public string _status;
         public string uploadDate;
     }
 

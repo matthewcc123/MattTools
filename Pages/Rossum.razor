@@ -3,6 +3,7 @@
 @inject IRossumService rossumService;
 @inject RossumExtractorService  rossumExtractor; 
 @using MattTools.Data;
+@using CommunityToolkit.Maui.Storage;
 @using System.Diagnostics;
 
 
@@ -36,8 +37,8 @@
                 <div class="textareaFocus"></div>
             </div>
             <button style="width: 100%; height: 44px;" @onclick="FindDocument">Search</button>
-            <button style="width: 100%; height: 44px;">Extract Json</button>
-            <button style="width: 100%; height: 44px;">Extract Pdf</button>
+            <button style="width: 100%; height: 44px;" @onclick="ExtractJSON">Extract JSON</button>
+            <button style="width: 100%; height: 44px;" @onclick="ExtractPDF">Extract PDF  </button>
         </div>
 
         <div class="listPanel">
@@ -106,6 +107,7 @@ else
 
     public string LoginUsername = "";
     public string LoginPassword = "";
+    public int selectedFiles;
 
     protected override void OnInitialized()
     {
@@ -177,7 +179,7 @@ else
 
     public string BottomStatus()
     {
-        int selectedFiles = 0;
+        selectedFiles = 0;
         int searchedFiles = rossumExtractor.AnnotationDataList.Count;
 
         foreach (var annotation in rossumExtractor.AnnotationDataList)
@@ -449,10 +451,12 @@ else
                     //New Annotation Data
                     RossumData.AnnotationData data = new RossumData.AnnotationData
                         {
-                            id = annotation.id,
+                            annotationID = annotation.id,
                             docID = document.id,
+                            queueID = rossumExtractor.QueueDataList[rossumExtractor.QueueValue].id,
                             fileName = filter,
                             status = ToUpperEveryWord(annotation.status.Replace("_", " ")),
+                            _status = annotation.status,
                             uploadDate = DateTime.Parse(document.created_at.ToString()).ToLocalTime().ToString()
                         };
 
@@ -473,6 +477,108 @@ else
             mainLayoutService.CreateDialog("Error", ex.ToString());
         }
 
+    }
+
+    public async Task ExtractJSON()
+    {
+        if (selectedFiles == 0)
+        {
+            mainLayoutService.CreateDialog("Error", "Please Select Document to Extract");
+            return;
+        }
+
+        mainLayoutService.ShowLoading("Extracting JSON");
+
+        try
+        {
+            string resultText = "";
+            var folderPickerResult = await FolderPicker.PickAsync(default);
+
+            if (folderPickerResult.IsSuccessful)
+            {
+                string path = folderPickerResult.Folder.Path;
+
+                foreach (var annotation in rossumExtractor.AnnotationDataList)
+                {
+                    if (!annotation.selected)
+                        continue;
+
+                    string json = await rossumService.GetJson(annotation, rossumExtractor.Key);
+
+                    if (json == "")
+                    {
+                        resultText += "&#8226;" + annotation.fileName + " unable to extract JSON <br/>";
+                    }
+                    else
+                    {
+                        resultText += "&#8226;" + annotation.fileName + ".json extracted <br/>";
+                        File.WriteAllText(path + @"\" + annotation.fileName + ".json", json);
+                    }
+                }
+            }
+
+            mainLayoutService.HideLoading();
+            await Task.Delay(250);
+
+            if (folderPickerResult.IsSuccessful)
+                mainLayoutService.CreateDialog("Result", resultText);
+
+        }
+        catch (Exception ex)
+        {
+            mainLayoutService.CreateDialog("Error", ex.Message);
+        }
+    }
+
+    public async Task ExtractPDF()
+    {
+        if (selectedFiles == 0)
+        {
+            mainLayoutService.CreateDialog("Error", "Please Select Document to Extract");
+            return;
+        }
+
+        mainLayoutService.ShowLoading("Extracting PDF");
+
+        try
+        {
+            string resultText = "";
+            var folderPickerResult = await FolderPicker.PickAsync(default);
+
+            if (folderPickerResult.IsSuccessful)
+            {
+                string path = folderPickerResult.Folder.Path;
+
+                foreach (var annotation in rossumExtractor.AnnotationDataList)
+                {
+                    if (!annotation.selected)
+                        continue;
+
+                    byte[] pdfByte = await rossumService.GetPdf(annotation, rossumExtractor.Key);
+
+                    if (pdfByte == null)
+                    {
+                        resultText += "&#8226;" + annotation.fileName + " unable to extract PDF <br/>";
+                    }
+                    else
+                    {
+                        resultText += "&#8226;" + annotation.fileName + ".pdf extracted <br/>";
+                        File.WriteAllBytes(path + @"\" + annotation.fileName + ".pdf", pdfByte);
+                    }
+                }
+            }
+
+            mainLayoutService.HideLoading();
+            await Task.Delay(250);
+
+            if (folderPickerResult.IsSuccessful)
+                mainLayoutService.CreateDialog("Result", resultText);
+
+        }
+        catch (Exception ex)
+        {
+            mainLayoutService.CreateDialog("Error", ex.Message);
+        }
     }
 
     private void AddEmptyAnnotation(string name)

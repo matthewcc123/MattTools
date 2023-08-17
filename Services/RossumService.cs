@@ -248,5 +248,65 @@ public class RossumService : IRossumService
     {
         return client.BaseAddress.ToString();
     }
+
+    public async Task<string> GetJson(RossumData.AnnotationData annotation, string key)
+    {
+
+        string json = "";
+
+        try
+        {
+            Dictionary<string, string> parameters = new Dictionary<string, string>
+            {
+                {"format", "json" },
+                {"status",  annotation._status},
+                {"id", annotation.annotationID.ToString() }
+            };
+
+            FormUrlEncodedContent dictFormUrlEncoded = new FormUrlEncodedContent(parameters);
+            string queryString = await dictFormUrlEncoded.ReadAsStringAsync();
+
+            string url = $"queues/{annotation.queueID}/export?{queryString}";
+
+            HttpResponseMessage response = await GET(url, key);
+
+            if (response.IsSuccessStatusCode)
+            {
+                json = response.Content.ReadAsStringAsync().Result;
+            }
+
+            return json;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.ToString());
+        }
+
+
+    }
+
+    public async Task<byte[]> GetPdf(RossumData.AnnotationData annotation, string key)
+    {
+        string url = $"documents/{annotation.docID}/content";
+        byte[] data = null;
+
+        try
+        {
+            HttpResponseMessage response = await GET(url, key);
+
+            if (response.IsSuccessStatusCode)
+            {
+                data = response.Content.ReadAsByteArrayAsync().Result;
+            }
+
+            return data;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.ToString());
+        }
+
+        
+    }
 }
 
