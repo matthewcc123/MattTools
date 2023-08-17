@@ -1,8 +1,10 @@
 ﻿using System;
+using Newtonsoft.Json;
 namespace MattTools.Data;
 
 public class RossumData
 {
+
 
     #region Pagnation
 
@@ -192,6 +194,103 @@ public class RossumData
         public List<string> authors { get; set; }
     }
 
+    #endregion
+
+    #region Document
+
+    public class DocumentMetadata
+    {
+        [JsonProperty("customer-id")]
+        public string customerid { get; set; }
+        public int source { get; set; }
+        public List<string> authors { get; set; }
+    }
+
+    public class DocumentResult
+    {
+        public int id { get; set; }
+        public string url { get; set; }
+        public string s3_name { get; set; }
+        public object parent { get; set; }
+        public object email { get; set; }
+        public string mime_type { get; set; }
+        public object creator { get; set; }
+        public DateTime created_at { get; set; }
+        public DateTime arrived_at { get; set; }
+        public string original_file_name { get; set; }
+        public string content { get; set; }
+        public object attachment_status { get; set; }
+        public DocumentMetadata metadata { get; set; }
+        public List<string> annotations { get; set; }
+    }
+
+    #endregion
+
+    #region Annotation
+
+    public class AnnotationData
+    {
+        public bool selected;
+        public int id;
+        public int docID;
+        public string fileName;
+        public string status;
+        public string uploadDate;
+    }
+
+    public class AnnotationResult
+    {
+        public string document { get; set; }
+        public int id { get; set; }
+        public string queue { get; set; }
+        public string schema { get; set; }
+        public List<object> relations { get; set; }
+        public List<string> pages { get; set; }
+        public string creator { get; set; }
+        public object modifier { get; set; }
+        public object assigned_at { get; set; }
+        public object confirmed_at { get; set; }
+        public DateTime created_at { get; set; }
+        public object exported_at { get; set; }
+        public object deleted_at { get; set; }
+        public object modified_at { get; set; }
+        public object purged_at { get; set; }
+        public object rejected_at { get; set; }
+        public object confirmed_by { get; set; }
+        public object deleted_by { get; set; }
+        public object exported_by { get; set; }
+        public object purged_by { get; set; }
+        public object rejected_by { get; set; }
+        public string status { get; set; }
+        public string rir_poll_id { get; set; }
+        public List<object> messages { get; set; }
+        public string url { get; set; }
+        public string content { get; set; }
+        public double time_spent { get; set; }
+        public AnnotationMetadata metadata { get; set; }
+        public bool automated { get; set; }
+        public object suggested_edit { get; set; }
+        public List<object> related_emails { get; set; }
+        public object email { get; set; }
+        public string automation_blocker { get; set; }
+        public object email_thread { get; set; }
+        public bool has_email_thread_with_replies { get; set; }
+        public bool has_email_thread_with_new_replies { get; set; }
+        public string organization { get; set; }
+        public bool automatically_rejected { get; set; }
+        public AnnotationMetadata prediction { get; set; }
+    }
+
+    public class AnnotationPrediction
+    {
+        public string source { get; set; }
+        public object version { get; set; }
+    }
+
+    public class AnnotationMetadata
+    {
+        public string sampleDocument { get; set; }
+    }
     #endregion
 
 }

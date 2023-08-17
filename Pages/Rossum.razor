@@ -6,11 +6,11 @@
 @using System.Diagnostics;
 
 
-@if (rossumExtractor.Key != null)
+@if (rossumExtractor.LoggedIn)
 {
     <!--Bottom Text-->
     <div class="bottomRightText">
-        <p>@rossumExtractor.Key</p>
+        <pre>@(BottomStatus())</pre>
     </div>
 
     
@@ -30,12 +30,12 @@
             <Dropdown Item="@(rossumExtractor.WorkspaceList)" Value="@(rossumExtractor.WorkspaceValue)" OnChangeValue="UpdateWorkspaceValue" />
             <label>Queue</label>
             <Dropdown Item="@(rossumExtractor.QueueList)" Value="@(rossumExtractor.QueueValue)" OnChangeValue="UpdateQueueValue" />
-            <label>Filter</label>
+            <label>Search</label>
             <div class="textareaContainer" style="width: 100%; height: 128px;">
-                <textarea style="height: 128px; width: 100%; resize: none;" />
+                <textarea style="height: 128px; width: 100%; resize: none;" @bind="rossumExtractor.Filter"/>
                 <div class="textareaFocus"></div>
             </div>
-            <button style="width: 100%; height: 44px;">Search</button>
+            <button style="width: 100%; height: 44px;" @onclick="FindDocument">Search</button>
             <button style="width: 100%; height: 44px;">Extract Json</button>
             <button style="width: 100%; height: 44px;">Extract Pdf</button>
         </div>
@@ -45,7 +45,8 @@
 
                 <thead>
                     <tr>
-                        <th>No</th>
+                        <th style="width: 45px"><Checkbox Check="@CheckAllAnnotationSelected()" OnClick="SelectAllAnnotation"/></th>
+                        <th style="width: 45px">No</th>
                         <th>Name</th>
                         <th>Status</th>
                         <th>Uploaded At</th>
@@ -54,13 +55,18 @@
 
                 <tbody>
 
-                    @for (int i = 0; i < 32; i++)
+                    @for (int i = 0; i < rossumExtractor.AnnotationDataList.Count; i++)
                     {
-                        <tr>
-                            <td>@(i + 1)</td>
-                            <td>3030658131</td>
-                            <td>Confirmed</td>
-                            <td>7/31/2023 2:35:34 PM</td>
+
+                        var annotation = rossumExtractor.AnnotationDataList[i];
+                        var index = i;
+
+                        <tr class="@Status(annotation.status)">
+                            <td style="width: 45px"><Checkbox Disabled="@(Status(annotation.status) != "confirmed" && Status(annotation.status) != "review")" Check="@annotation.selected" OnClick="@(e => SelectAnnotation(index))" /></td>
+                            <td style="width: 45px">@(i + 1)</td>
+                            <td>@annotation.fileName</td>
+                            <td>@annotation.status</td>
+                            <td>@annotation.uploadDate</td>
                         </tr>
                     }
 
@@ -115,6 +121,46 @@ else
 
     }
 
+    public void SelectAnnotation(int value)
+    {
+        rossumExtractor.AnnotationDataList[value].selected = !rossumExtractor.AnnotationDataList[value].selected;
+    }
+
+    public void SelectAllAnnotation()
+    {
+        bool select = !CheckAllAnnotationSelected();
+
+        foreach (var annotation in rossumExtractor.AnnotationDataList)
+        {
+            if (Status(annotation.status) == "confirmed" || Status(annotation.status) == "review")
+            {
+                annotation.selected = select;
+            }
+
+        }
+
+        StateHasChanged();
+    }
+
+    public bool CheckAllAnnotationSelected()
+    {
+        bool allSelected = true;
+
+        if (rossumExtractor.AnnotationDataList.Count == 0)
+            return false;
+
+        foreach (var annotation in rossumExtractor.AnnotationDataList)
+        {
+            if (!annotation.selected && (Status(annotation.status) == "confirmed" || Status(annotation.status) == "review"))
+            {
+                allSelected = false;
+                break;
+            }
+        }
+
+        return allSelected;
+    }
+
     public async void UpdateWorkspaceValue(int value)
     {
         if (value == rossumExtractor.WorkspaceValue)
@@ -129,6 +175,41 @@ else
         rossumExtractor.QueueValue = value;
     }
 
+    public string BottomStatus()
+    {
+        int selectedFiles = 0;
+        int searchedFiles = rossumExtractor.AnnotationDataList.Count;
+
+        foreach (var annotation in rossumExtractor.AnnotationDataList)
+        {
+            if (annotation.selected)
+                selectedFiles++;
+        }
+
+        return $"Selected : {selectedFiles}    Searched : {searchedFiles}    {rossumExtractor.Key}";
+    }
+
+    public string Status(string status)
+    {
+        switch (status)
+        {
+            default:
+                return "";
+            case "Not Found":
+                return "disabled";
+            case "To Review":
+            case "Reviewing":
+                return "review";
+            case "Confirmed":
+            case "Exported":
+            case "Exporting":
+                return "confirmed";
+            case "Deleted":
+            case "Purged":
+                return "deleted";
+        }
+    }
+
     public async void Login()
     {
         if (rossumExtractor.Key == null && (LoginUsername == "" || LoginPassword == ""))
@@ -139,31 +220,42 @@ else
 
         mainLayoutService.ShowLoading("Logging In");
 
-        RossumData.LoginRespone response = await rossumService.Login(new RossumData.LoginForm { username = LoginUsername, password = LoginPassword, key = rossumExtractor.Key });
-
-        if (response.key != null)
+        try
         {
-            rossumExtractor.SaveLoginCache(LoginUsername, response.key);
+            RossumData.LoginRespone response = await rossumService.Login(new RossumData.LoginForm { username = LoginUsername, password = LoginPassword, key = rossumExtractor.Key });
 
-            await GetWorkspaceList();
-            await GetQueueListFromWorkspace();
+            if (response.key != null)
+            {
+                rossumExtractor.SaveLoginCache(LoginUsername, response.key);
 
-            mainLayoutService.HideLoading();
-            await Task.Delay(250);
+                await GetWorkspaceList();
+                await GetQueueListFromWorkspace();
 
-            mainLayoutService.CreateDialog("Login Success!", "Welcome " + LoginUsername + "! <br> key : " + response.key);
-            StateHasChanged();
+                mainLayoutService.HideLoading();
+                await Task.Delay(250);
+
+                mainLayoutService.CreateDialog("Login Success!", "Welcome " + LoginUsername + "! <br> key : " + response.key);
+                rossumExtractor.AnnotationDataList.Clear();
+                rossumExtractor.LoggedIn = true;
+                StateHasChanged();
+            }
+            else if (response.error != null)
+            {
+                rossumExtractor.ClearLoginCache();
+                rossumExtractor.SaveLoginCache(null, null);
+
+                mainLayoutService.HideLoading();
+                await Task.Delay(250);
+
+                mainLayoutService.CreateDialog("Login Failed", response.error);
+                StateHasChanged();
+            }
         }
-        else if (response.error != null)
+        catch (Exception ex)
         {
-            rossumExtractor.ClearLoginCache();
-            rossumExtractor.SaveLoginCache(null, null);
-
             mainLayoutService.HideLoading();
             await Task.Delay(250);
-
-            mainLayoutService.CreateDialog("Login Failed", response.error);
-            StateHasChanged();
+            mainLayoutService.CreateDialog("Error", ex.ToString());
         }
 
     }
@@ -172,24 +264,34 @@ else
     {
         mainLayoutService.ShowLoading("Loging Out");
 
-        RossumData.LogoutRespone respone = await rossumService.Logout(rossumExtractor.Key);
-
-        mainLayoutService.HideLoading();
-
-        await Task.Delay(250);
-
-        if (respone.loggedOut)
+        try
         {
-            LoginUsername = rossumExtractor.LoginCache.username;
-            rossumExtractor.SaveLoginCache(null, null);
-            rossumExtractor.ClearLoginCache();
-        }
-        else
-        {
-            mainLayoutService.CreateDialog("Logout Failed", respone.detail);
-        }
+            RossumData.LogoutRespone respone = await rossumService.Logout(rossumExtractor.Key);
 
-        StateHasChanged();
+            mainLayoutService.HideLoading();
+
+            await Task.Delay(250);
+
+            if (respone.loggedOut)
+            {
+                LoginUsername = rossumExtractor.LoginCache.username;
+                rossumExtractor.SaveLoginCache(null, null);
+                rossumExtractor.ClearLoginCache();
+                rossumExtractor.LoggedIn = false;
+            }
+            else
+            {
+                mainLayoutService.CreateDialog("Logout Failed", respone.detail);
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            mainLayoutService.HideLoading();
+            await Task.Delay(250);
+            mainLayoutService.CreateDialog("Error", ex.ToString());
+        }
 
     }
 
@@ -200,30 +302,40 @@ else
         rossumExtractor.WorkspaceDataList.Clear();
         rossumExtractor.WorkspaceValue = 0;
 
-        RossumData.PagingObject<RossumData.WorkspaceResult> workspaces = await rossumService.GetWorkspaces(rossumExtractor.Key, null);
-
-        if (workspaces != null)
+        try
         {
-            //Get Workspace
-            GetWorkspaceFromList(workspaces.results);
+            RossumData.PagingObject<RossumData.WorkspaceResult> workspaces = await rossumService.GetWorkspaces(rossumExtractor.Key, null);
 
-            //Get Another Workspace on other Page
-            while (workspaces.pagination.next != null)
+            if (workspaces != null)
             {
-                workspaces = await rossumService.GetWorkspaces(rossumExtractor.Key, workspaces.pagination.next.ToString());
+                //Get Workspace
+                GetWorkspaceFromList(workspaces.results);
 
-                if (workspaces != null)
+                //Get Another Workspace on other Page
+                while (workspaces.pagination.next != null)
                 {
-                    //Get Workspace
-                    GetWorkspaceFromList(workspaces.results);
+                    workspaces = await rossumService.GetWorkspaces(rossumExtractor.Key, workspaces.pagination.next.ToString());
+
+                    if (workspaces != null)
+                    {
+                        //Get Workspace
+                        GetWorkspaceFromList(workspaces.results);
+                    }
+
                 }
 
             }
 
+            StateHasChanged();
+            mainLayoutService.HideLoading();
+        }
+        catch (Exception ex)
+        {
+            mainLayoutService.HideLoading();
+            await Task.Delay(250);
+            mainLayoutService.CreateDialog("Error", ex.ToString());
         }
 
-        StateHasChanged();
-        mainLayoutService.HideLoading();
     }
 
     public void GetWorkspaceFromList(List<RossumData.WorkspaceResult> workspaceResult)
@@ -253,22 +365,147 @@ else
         RossumData.WorkspaceData workspaceData = rossumExtractor.WorkspaceDataList[rossumExtractor.WorkspaceValue];
 
         //Get Queue from Workspace
-        for (int i = 0; i < workspaceData.queueURL.Count; i++)
+        try
         {
-            string url = workspaceData.queueURL[i];
-            RossumData.QueueResult queue = await rossumService.GetQueue(rossumExtractor.Key, url);
-
-            if (queue != null && queue.status == "active")
+            for (int i = 0; i < workspaceData.queueURL.Count; i++)
             {
-                RossumData.QueueData queueData = new RossumData.QueueData { name = queue.name, id = queue.id };
-                rossumExtractor.QueueDataList.Add(queueData);   
+                string url = workspaceData.queueURL[i];
+                RossumData.QueueResult queue = await rossumService.GetQueue(rossumExtractor.Key, url);
+
+                if (queue != null && queue.status == "active")
+                {
+                    RossumData.QueueData queueData = new RossumData.QueueData { name = queue.name, id = queue.id };
+                    rossumExtractor.QueueDataList.Add(queueData);
+                }
+
             }
 
+            StateHasChanged();
+            mainLayoutService.HideLoading();
+        }
+        catch (Exception ex)
+        {
+            mainLayoutService.HideLoading();
+            await Task.Delay(250);
+            mainLayoutService.CreateDialog("Error", ex.ToString());
+        }
+    }
+
+    public async Task FindDocument()
+    {
+
+        //Listing Documents to Find
+        string filters = rossumExtractor.Filter;
+        filters = filters.Replace("\n", ",");
+        filters = filters.Replace("\r", ",");
+        filters = filters.Replace("\t", ",");
+        string[] filterToFind = filters.Split(',');
+        filterToFind = filterToFind.Distinct().ToArray();
+
+        if (filterToFind.Length == 0 || (filterToFind.Length > 0 && filterToFind[0] == ""))
+        {
+            mainLayoutService.CreateDialog("Error", "Fill the search form.");
+            return;
         }
 
-        StateHasChanged();
+        mainLayoutService.ShowLoading("Searching Document");
+        rossumExtractor.AnnotationDataList.Clear();
 
-        mainLayoutService.HideLoading();
+        try
+        {
+            foreach (var filter in filterToFind)
+            {
+                if (filter == "")
+                    continue;
+
+                RossumData.PagingObject<RossumData.DocumentResult> documents = await rossumService.GetDocumentByFileName(filter + ".pdf", rossumExtractor.Key);
+
+                if (documents == null)
+                {
+                    continue;
+                }
+
+                if (documents.results.Count == 0)
+                {
+                    //Add to List
+                    AddEmptyAnnotation(filter);
+                    continue;
+                }
+
+                foreach (var document in documents.results)
+                {
+                    RossumData.AnnotationResult annotation = await rossumService.GetAnnotation(document.annotations[0], rossumExtractor.Key);
+
+                    //Check Annotaiton Queue Match
+                    string queueString = annotation.queue.Replace(rossumService.GetBaseAddress() + "queues/", string.Empty);
+
+                    if (queueString != rossumExtractor.QueueDataList[rossumExtractor.QueueValue].id.ToString())
+                    {
+                        //Add to List
+                        AddEmptyAnnotation(filter);
+                        continue;
+                    }
+
+                    //New Annotation Data
+                    RossumData.AnnotationData data = new RossumData.AnnotationData
+                        {
+                            id = annotation.id,
+                            docID = document.id,
+                            fileName = filter,
+                            status = ToUpperEveryWord(annotation.status.Replace("_", " ")),
+                            uploadDate = DateTime.Parse(document.created_at.ToString()).ToLocalTime().ToString()
+                        };
+
+                    //Add to List
+                    rossumExtractor.AnnotationDataList.Add(data);
+
+                    StateHasChanged();
+                }
+
+            }
+
+            mainLayoutService.HideLoading();
+        }
+        catch (Exception ex)
+        {
+            mainLayoutService.HideLoading();
+            await Task.Delay(250);
+            mainLayoutService.CreateDialog("Error", ex.ToString());
+        }
+
+    }
+
+    private void AddEmptyAnnotation(string name)
+    {
+        //New Annotation Data
+        RossumData.AnnotationData data = new RossumData.AnnotationData
+            {
+                fileName = name,
+                status = "Not Found",
+                uploadDate = "-"
+            };
+
+        //Add to List
+        rossumExtractor.AnnotationDataList.Add(data);
+        StateHasChanged();
+    }
+
+    public string ToUpperEveryWord(string s)
+    {
+        // Check for empty string.
+        if (string.IsNullOrEmpty(s))
+        {
+            return string.Empty;
+        }
+
+        var words = s.Split(' ');
+
+        var t = "";
+        foreach (var word in words)
+        {
+            t += char.ToUpper(word[0]) + word.Substring(1) + ' ';
+        }
+        return t.Trim();
     }
 
 }

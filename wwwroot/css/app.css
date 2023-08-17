@@ -23,6 +23,10 @@ html, body {
     font-weight: 400;
 }
 
+pre {
+    font-family: JktSans;
+}
+
 main {
     position: absolute;
     margin-left: 64px;
@@ -42,6 +46,8 @@ main {
     background-color: rgba(255,255,255,.5);
     border: 1px solid #D9D9D9;
     backdrop-filter: blur(2px);
+
+    display: inline-flex;
 }
 
 .hidden {
@@ -84,7 +90,7 @@ main {
     border-radius: 12px;
 }
 
-p {
+p, pre {
     font-size: .75rem;
     font-weight: 400;
 }
@@ -104,35 +110,52 @@ label {
 }
 
 /*InputField*/
-input[type=text], input[type=password] {
+input[type=text], input[type=password], input[type=date]{
+    position: relative;
     border-radius: 12px;
     border: 1px solid #D9D9D9;
     height: 36px;
     font-size: .75rem;
     padding: 0px 16px 0px 16px;
     transition: border .1s ease-out;
+    user-select: none;
 }
 
-input[type=text]:focus, input[type=password]:focus {
+input[type=text]:focus, input[type=password]:focus, input[type=date]:focus {
     outline: none;
     border: 1px solid #0066FF;
+}
+
+input[type=date]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    color: transparent;
+    background: transparent;
+}
+
+input[type=checkbox] {
+    position: relative;
 }
 
 .textareaContainer {
     position: relative;
     border-radius: 12px;
     justify-content: center;
-    overflow: hidden;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 textarea {
-        
+    padding-left: 12px;
+    padding-right: 12px;
     height: 36px;
     font-size: .75rem;
     border: none;
-    padding: 12px;
     box-sizing: border-box;
-    
 }
 
 textarea:focus
@@ -173,7 +196,7 @@ thead tr th{
 }
 
 th, td {
-    padding: 16px 16px;
+    padding: 14px 14px;
 }
 
 tbody tr {

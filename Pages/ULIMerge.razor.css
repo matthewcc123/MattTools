@@ -22,6 +22,10 @@
     visibility: hidden;
 }
 
+.tooltipText p {
+    font-size: .6rem;
+}
+
 .tooltipText::after {
         content: "";
         position: absolute;

@@ -29,7 +29,7 @@
 
             <thead>
                 <tr>
-                    <th>No</th>
+                    <th style="width: 45px">No</th>
                     <th>Invoice Number</th>
                     <th>Tax Number</th>
                     <th>Status</th>
@@ -43,7 +43,7 @@
                     var file = mergerService.MergeFiles[i];
 
                     <tr class="@Status(file.mergeStatus)">
-                        <td>@(i + 1)</td>
+                        <td style="width: 45px">@(i + 1)</td>
                         <td>@file.InvoiceNumber</td>
                         <td>@mergerService.TaxNumberFormat(file.TaxNumber)</td>
                         <td>

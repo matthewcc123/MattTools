@@ -16,6 +16,40 @@
     margin-top: 32px;
     height: calc(100vh - 196px);
     margin-left: 256px;
-    padding-left: 32px;
+    padding-left: 24px;
     overflow: scroll;
+}
+
+/*Color*/
+.confirmed, .confirmed:nth-of-type(odd) {
+    background-color: #ECF6FF;
+}
+
+.confirmed:hover {
+    background-color: #C7E3FF;
+}
+
+.deleted, .deleted:nth-of-type(odd) {
+    background-color: #FFECEC;
+}
+
+.deleted:hover {
+    background-color: #FFC7C7;
+}
+
+.review, .review:nth-of-type(odd) {
+    background-color: #FFF3E9;
+}
+
+.review:hover {
+    background-color: #FFE6CF;
+}
+
+.disabled, .disabled:nth-of-type(odd) {
+    opacity: .5;
+    background-color: #EDEDED;
+}
+
+.disabled:hover {
+    transform: translateY(0);
 }

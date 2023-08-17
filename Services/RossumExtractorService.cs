@@ -13,6 +13,10 @@ public class RossumExtractorService
     public int WorkspaceValue;
     public List<RossumData.QueueData> QueueDataList;
     public int QueueValue;
+    public List<RossumData.AnnotationData> AnnotationDataList;
+    public bool LoggedIn;
+    public string Filter;
+
     public string Key { get { return LoginCache.key; } }
     public List<string> WorkspaceList
     {
@@ -48,6 +52,8 @@ public class RossumExtractorService
         LoginCache = new RossumData.LoginCache();
         WorkspaceDataList = new List<RossumData.WorkspaceData>();
         QueueDataList = new List<RossumData.QueueData>();
+        AnnotationDataList = new List<RossumData.AnnotationData>();
+        Filter = string.Empty;
     }
 
     public void SaveLoginCache(string username, string key)

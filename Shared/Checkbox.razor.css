@@ -1,0 +1,79 @@
+﻿.checkbox {
+    position: relative;
+    height: 20px;
+    width: 20px;
+}
+
+.checkbox input[type="checkbox"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    appearance: none;
+    background: #FFFF;
+
+    border-radius: 8px;
+    border: 1px solid #D9D9D9;
+    transition: .1s ease-out;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.checkbox input[type="checkbox"]:hover
+{
+    background: #F3F3F3;
+    border: 1px solid #0066FF;
+}
+
+.checkbox input[type="checkbox"]:disabled {
+    opacity: .8;
+    background: #F3F3F3;
+    border: 1px solid #C3C3C3;
+}
+
+.checkbox input[type="checkbox"]:disabled:hover {
+    background: #F3F3F3;
+    border: 1px solid #C3C3C3;
+}
+
+.checkbox input[type="checkbox"]:checked
+{
+    border: 1px solid #0066FF;
+    background:#0066FF;
+}
+
+.checkbox input[type="checkbox"]:checked:hover
+{
+    border: 1px solid #0066FF;
+    background: #005EEB;
+}
+
+.checkbox input[type="checkbox"]:after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transition: .15s ease-in;
+    transform: scale(0);
+    border-radius: 8px;
+}
+
+.checkbox input[type="checkbox"]:checked:after {
+    content: url("icon/checkmarkIcon.svg");
+    
+    transform: scale(1);
+}
+
+.checkbox:hover input[type="checkbox"]:checked:after {
+    
+    transform: scale(.8);
+}
+
+.checkbox img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    filter: invert();
+}
