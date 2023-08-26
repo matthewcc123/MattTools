@@ -208,6 +208,11 @@ internal class ULIMergerService
                     System.IO.Directory.CreateDirectory(MergePath + @"\Merged");
 
                 string fileName = MergePath + @"\Merged\" + mergeFile.InvoiceNumber + ".pdf";
+
+                #if MACCATALYST
+                fileName = fileName.Replace(@"\", "/");
+                #endif
+
                 outputPdf.Save(fileName);
 
                 mergeFile.mergeStatus = MergeStatus.Merged;

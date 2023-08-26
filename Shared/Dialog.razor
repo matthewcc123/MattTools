@@ -3,14 +3,16 @@
 
 @if (IsVisible)
 {
-    <div class="dialogOverlay @anim">
-        <div class="dialogContainer">
-            <div class="dialogTitle">@title</div>
-            <div class="dialogContent">
-                @((MarkupString) text)
-            </div>
-            <div class="dialogBottom">
-                <button @onclick="mainLayoutService.DestroyDialog">OK</button>
+    <div class="dialogOverlay @overlayAnim">
+        <div class="dialogContentWrapper @anim">
+            <div class="dialogContainer">
+                <div class="dialogTitle">@title</div>
+                <div class="dialogContent">
+                    @((MarkupString)text)
+                </div>
+                <div class="dialogBottom">
+                    <button @onclick="mainLayoutService.DestroyDialog">OK</button>
+                </div>
             </div>
         </div>
     </div>
@@ -22,6 +24,7 @@
     protected string title { get; set; }
     protected string text { get; set; }
     protected bool IsVisible { get; set; }
+    protected string overlayAnim { get; set; }
     protected string anim { get; set; }
 
     protected override void OnInitialized()
@@ -31,8 +34,9 @@
     }
 
 
-    private void ChangeAnim(string anim)
+    private void ChangeAnim(string anim, string anim2)
     {
+        this.overlayAnim = anim2;
         this.anim = anim;
         StateHasChanged();
     }
@@ -43,7 +47,7 @@
         title = mainLayoutService.DialogList.First().title;
         text = mainLayoutService.DialogList.First().text;
 
-        ChangeAnim("animate flyFadeIn");
+        ChangeAnim("animate flyFadeIn", "animate fadeIn");
     }
 
     private async void Close()
@@ -51,13 +55,13 @@
         //Open another dialog left
         if (mainLayoutService.DialogList.Count > 0)
         {
-            ChangeAnim("");
+            ChangeAnim("","");
             await Task.Delay(10);
             Open();
         }
         else
         {
-            ChangeAnim("animate flyFadeOut");
+            ChangeAnim("animate flyFadeOut","animate fadeOut");
             await Task.Delay(250);
             IsVisible = false;
             StateHasChanged();

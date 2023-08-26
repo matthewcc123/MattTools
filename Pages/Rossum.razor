@@ -264,7 +264,7 @@ else
 
     public async void Logout()
     {
-        mainLayoutService.ShowLoading("Loging Out");
+        mainLayoutService.ShowLoading("Logging Out");
 
         try
         {
@@ -512,7 +512,13 @@ else
                     else
                     {
                         resultText += "&#8226;" + annotation.fileName + ".json extracted <br/>";
-                        File.WriteAllText(path + @"\" + annotation.fileName + ".json", json);
+                        string filePath = path + @"\" + annotation.fileName + ".json";
+                        
+                        #if MACCATALYST
+                            filePath = filePath.Replace(@"\","/");
+                        #endif
+
+                        File.WriteAllText(filePath, json);
                     }
                 }
             }
@@ -563,7 +569,14 @@ else
                     else
                     {
                         resultText += "&#8226;" + annotation.fileName + ".pdf extracted <br/>";
-                        File.WriteAllBytes(path + @"\" + annotation.fileName + ".pdf", pdfByte);
+
+                        string filePath = path + @"\" + annotation.fileName + ".pdf";
+
+                        #if MACCATALYST
+                        filePath = filePath.Replace(@"\","/");
+                        #endif
+
+                        File.WriteAllBytes(filePath, pdfByte);
                     }
                 }
             }

@@ -3,7 +3,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    background: rgba(255,255,255,0.8);
+    background: rgba(0, 0, 0, 0.25);
     z-index: 4000;
     width: 100%;
     height: 100%;
@@ -12,7 +12,22 @@
     transition: visibility .25s;
 }
 
+.loadingContentWrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
 .loadingContent {
+    justify-content: center;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -23,8 +38,8 @@
 }
 
 .loadingContent p {
-    padding-top: 16px;
-    font-size: 1rem;
+    padding-top: 32px;
+    font-size: .75rem;
     font-weight: 600;
 }
 

@@ -1,14 +1,17 @@
 ﻿@inject MainLayoutService mainLayoutService
 
-<div class="loadingOverlay @anim">
-    <div class="loadingContent">
-        <Spinner></Spinner>
-        <p>@text</p>
+<div class="loadingOverlay @overlayAnim">
+    <div class="loadingContentWrapper @anim">
+        <div class="loadingContent">
+            <Spinner></Spinner>
+            <p>@text</p>
+        </div>
     </div>
 </div>
 
 @code {
 
+    protected string overlayAnim { get; set; }
     protected string anim { get; set; }
     protected string text { get; set; }
     protected override void OnInitialized()
@@ -17,8 +20,9 @@
         mainLayoutService.OnHideLoading += Hide;
     }
 
-    private void ChangeAnim(string anim)
+    private void ChangeAnim(string anim, string anim2)
     {
+        this.overlayAnim = anim2;
         this.anim = anim;
         StateHasChanged();
     }
@@ -27,12 +31,12 @@
     {
         text = mainLayoutService.LoadingText;
 
-        ChangeAnim("animate flyFadeIn show");
+        ChangeAnim("animate flyFadeIn", "animate fadeIn show");
     }
 
     public void Hide()
     {
-        ChangeAnim("animate flyFadeOut");
+        ChangeAnim("animate flyFadeOut", "animate fadeOut");
 
         StateHasChanged();
 

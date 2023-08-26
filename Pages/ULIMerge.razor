@@ -136,6 +136,12 @@
     public async Task MergeInvoice()
     {
 
+        if (mergerService.MergeFiles.Count == 0)
+        {
+            mainLayoutService.CreateDialog("Error", "Please select file to merge first.");
+            return;
+        }
+
         mainLayoutService.ShowLoading("Merging");
 
         await Task.Run(mergerService.MergeInvoices);
