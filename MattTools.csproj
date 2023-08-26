@@ -13,10 +13,10 @@
         <EnableDefaultCssItems>false</EnableDefaultCssItems>
 
         <!-- Display name -->
-        <ApplicationTitle>MattTools</ApplicationTitle>
+        <ApplicationTitle>Matt's Tools</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.matttools</ApplicationId>
+        <ApplicationId>com.mepLabs.matttools</ApplicationId>
         <ApplicationIdGuid>CBB6C1E8-4AB3-40D7-9265-17CA9F595E20</ApplicationIdGuid>
 
         <!-- Versions -->
@@ -36,10 +36,10 @@
     </PropertyGroup>
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FFFF" />
 
         <!-- Splash Screen -->
-        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#FFFF" BaseSize="128,128" />
 
         <!-- Images -->
         <MauiImage Include="Resources\Images\*" />

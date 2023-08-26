@@ -16,6 +16,7 @@ public partial class App : Application
         Window.Width = 1280;
         Window.Height = 832;
         Window.Page = MainPage;
+        Window.Title = "Matt's Tools";
 
         return Window;
     }
