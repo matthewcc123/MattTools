@@ -95,6 +95,10 @@ public class MainService
             client.Dispose();
 
         }
+        catch
+        {
+            //nothing
+        }
         finally
         {
 
@@ -110,7 +114,7 @@ public class MainService
             {
                 ShowLoading("Good Bye");
 
-                await Task.Delay(1000);
+                await Task.Delay(3000);
 
                 Application.Current.Quit();
             }
