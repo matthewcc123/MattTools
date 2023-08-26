@@ -61,15 +61,18 @@ public class RossumExtractorService
         LoginCache.username = username?.ToLower();
         LoginCache.key = key;
 
-        string path = Path.Combine(FileSystem.CacheDirectory, "LoginData.key");
+        string path = Path.Combine(FileSystem.CacheDirectory, "LoginData");
         string json = JsonConvert.SerializeObject(LoginCache);
+
+        if (!System.IO.Directory.Exists(FileSystem.CacheDirectory))
+            System.IO.Directory.CreateDirectory(FileSystem.CacheDirectory);
 
         File.WriteAllText(path, json);
     }
 
     public bool LoadLoginCache()
     {
-        string path = Path.Combine(FileSystem.CacheDirectory, "LoginData.key");
+        string path = Path.Combine(FileSystem.CacheDirectory, "LoginData");
         string json;
 
         try

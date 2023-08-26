@@ -47,6 +47,10 @@ public class MainService
 
         string json = JsonConvert.SerializeObject(data);
         string path = Path.Combine(FileSystem.CacheDirectory, "ToolsData");
+
+        if (!System.IO.Directory.Exists(FileSystem.CacheDirectory))
+            System.IO.Directory.CreateDirectory(FileSystem.CacheDirectory);
+
         File.WriteAllText(path, json);
     }
 
@@ -119,6 +123,8 @@ public class MainService
                 Application.Current.Quit();
             }
 
+            string path1 = FileSystem.AppDataDirectory;
+            string path2 = FileSystem.CacheDirectory;
             
         }
 
