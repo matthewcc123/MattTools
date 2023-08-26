@@ -1,5 +1,5 @@
 ﻿@page "/ULIMerge"
-@inject MainLayoutService mainLayoutService
+@inject MainService mainService
 @inject ULIMergerService mergerService;
 @using System.Diagnostics;
 @using MattTools.Data;
@@ -113,11 +113,11 @@
     public async Task PickInvoice()
     {
 
-        mainLayoutService.ShowLoading("Selecting File");
+        mainService.ShowLoading("Selecting File");
 
         await Task.Run(mergerService.PickInvoices);
 
-        mainLayoutService.HideLoading();
+        mainService.HideLoading();
 
         if (mergerService.Errors.Count > 0)
         {
@@ -128,7 +128,7 @@
                 errorText += "&#8226; " + mergerService.Errors[i] + "<br/>";
             }
 
-            mainLayoutService.CreateDialog("Error", errorText);
+            mainService.CreateDialog("Error", errorText);
         }
 
     }
@@ -138,15 +138,15 @@
 
         if (mergerService.MergeFiles.Count == 0)
         {
-            mainLayoutService.CreateDialog("Error", "Please select file to merge first.");
+            mainService.CreateDialog("Error", "Please select file to merge first.");
             return;
         }
 
-        mainLayoutService.ShowLoading("Merging");
+        mainService.ShowLoading("Merging");
 
         await Task.Run(mergerService.MergeInvoices);
 
-        mainLayoutService.HideLoading();
+        mainService.HideLoading();
 
     }
 

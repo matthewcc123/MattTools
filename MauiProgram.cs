@@ -25,7 +25,7 @@ public static class MauiProgram
 #endif
 
         //My Services
-        builder.Services.AddSingleton<MainLayoutService>();
+        builder.Services.AddSingleton<MainService>();
         builder.Services.AddSingleton<ULIMergerService>();
         builder.Services.AddSingleton<RossumExtractorService>();
 

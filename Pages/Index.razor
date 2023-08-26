@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject MainService mainService;
 
 <div class="headerBackground animate fadeIn"></div>
 <div class="content center animate flyFadeIn">
@@ -19,3 +20,12 @@
         </div>
     </div>
 </div>
+
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        mainService.CheckVersion();
+    }
+}

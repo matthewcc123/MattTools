@@ -1,5 +1,5 @@
 ﻿@page "/Rossum"
-@inject MainLayoutService mainLayoutService;
+@inject MainService mainService;
 @inject IRossumService rossumService;
 @inject RossumExtractorService  rossumExtractor; 
 @using MattTools.Data;
@@ -216,11 +216,11 @@ else
     {
         if (rossumExtractor.Key == null && (LoginUsername == "" || LoginPassword == ""))
         {
-            mainLayoutService.CreateDialog("Error", $"Please fill the form.");
+            mainService.CreateDialog("Error", $"Please fill the form.");
             return;
         }
 
-        mainLayoutService.ShowLoading("Logging In");
+        mainService.ShowLoading("Logging In");
 
         try
         {
@@ -233,10 +233,10 @@ else
                 await GetWorkspaceList();
                 await GetQueueListFromWorkspace();
 
-                mainLayoutService.HideLoading();
+                mainService.HideLoading();
                 await Task.Delay(250);
 
-                mainLayoutService.CreateDialog("Login Success!", "Welcome " + LoginUsername + "! <br> key : " + response.key);
+                mainService.CreateDialog("Login Success!", "Welcome " + LoginUsername + "! <br> key : " + response.key);
                 rossumExtractor.AnnotationDataList.Clear();
                 rossumExtractor.LoggedIn = true;
                 StateHasChanged();
@@ -246,31 +246,31 @@ else
                 rossumExtractor.ClearLoginCache();
                 rossumExtractor.SaveLoginCache(null, null);
 
-                mainLayoutService.HideLoading();
+                mainService.HideLoading();
                 await Task.Delay(250);
 
-                mainLayoutService.CreateDialog("Login Failed", response.error);
+                mainService.CreateDialog("Login Failed", response.error);
                 StateHasChanged();
             }
         }
         catch (Exception ex)
         {
-            mainLayoutService.HideLoading();
+            mainService.HideLoading();
             await Task.Delay(250);
-            mainLayoutService.CreateDialog("Error", ex.ToString());
+            mainService.CreateDialog("Error", ex.ToString());
         }
 
     }
 
     public async void Logout()
     {
-        mainLayoutService.ShowLoading("Logging Out");
+        mainService.ShowLoading("Logging Out");
 
         try
         {
             RossumData.LogoutRespone respone = await rossumService.Logout(rossumExtractor.Key);
 
-            mainLayoutService.HideLoading();
+            mainService.HideLoading();
 
             await Task.Delay(250);
 
@@ -283,23 +283,23 @@ else
             }
             else
             {
-                mainLayoutService.CreateDialog("Logout Failed", respone.detail);
+                mainService.CreateDialog("Logout Failed", respone.detail);
             }
 
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            mainLayoutService.HideLoading();
+            mainService.HideLoading();
             await Task.Delay(250);
-            mainLayoutService.CreateDialog("Error", ex.ToString());
+            mainService.CreateDialog("Error", ex.ToString());
         }
 
     }
 
     public async Task GetWorkspaceList()
     {
-        mainLayoutService.ShowLoading("Getting Workspace List");
+        mainService.ShowLoading("Getting Workspace List");
 
         rossumExtractor.WorkspaceDataList.Clear();
         rossumExtractor.WorkspaceValue = 0;
@@ -329,13 +329,13 @@ else
             }
 
             StateHasChanged();
-            mainLayoutService.HideLoading();
+            mainService.HideLoading();
         }
         catch (Exception ex)
         {
-            mainLayoutService.HideLoading();
+            mainService.HideLoading();
             await Task.Delay(250);
-            mainLayoutService.CreateDialog("Error", ex.ToString());
+            mainService.CreateDialog("Error", ex.ToString());
         }
 
     }
@@ -358,7 +358,7 @@ else
         if (rossumExtractor.WorkspaceList.Count == 0)
             return;
 
-        mainLayoutService.ShowLoading("Getting Queue List");
+        mainService.ShowLoading("Getting Queue List");
 
         rossumExtractor.QueueDataList.Clear();
         rossumExtractor.QueueValue = 0;
@@ -383,13 +383,13 @@ else
             }
 
             StateHasChanged();
-            mainLayoutService.HideLoading();
+            mainService.HideLoading();
         }
         catch (Exception ex)
         {
-            mainLayoutService.HideLoading();
+            mainService.HideLoading();
             await Task.Delay(250);
-            mainLayoutService.CreateDialog("Error", ex.ToString());
+            mainService.CreateDialog("Error", ex.ToString());
         }
     }
 
@@ -406,11 +406,11 @@ else
 
         if (filterToFind.Length == 0 || (filterToFind.Length > 0 && filterToFind[0] == ""))
         {
-            mainLayoutService.CreateDialog("Error", "Fill the search form.");
+            mainService.CreateDialog("Error", "Fill the search form.");
             return;
         }
 
-        mainLayoutService.ShowLoading("Searching Document");
+        mainService.ShowLoading("Searching Document");
         rossumExtractor.AnnotationDataList.Clear();
 
         try
@@ -468,13 +468,13 @@ else
 
             }
 
-            mainLayoutService.HideLoading();
+            mainService.HideLoading();
         }
         catch (Exception ex)
         {
-            mainLayoutService.HideLoading();
+            mainService.HideLoading();
             await Task.Delay(250);
-            mainLayoutService.CreateDialog("Error", ex.ToString());
+            mainService.CreateDialog("Error", ex.ToString());
         }
 
     }
@@ -483,11 +483,11 @@ else
     {
         if (selectedFiles == 0)
         {
-            mainLayoutService.CreateDialog("Error", "Please Select Document to Extract");
+            mainService.CreateDialog("Error", "Please Select Document to Extract");
             return;
         }
 
-        mainLayoutService.ShowLoading("Extracting JSON");
+        mainService.ShowLoading("Extracting JSON");
 
         try
         {
@@ -523,16 +523,16 @@ else
                 }
             }
 
-            mainLayoutService.HideLoading();
+            mainService.HideLoading();
             await Task.Delay(250);
 
             if (folderPickerResult.IsSuccessful)
-                mainLayoutService.CreateDialog("Result", resultText);
+                mainService.CreateDialog("Result", resultText);
 
         }
         catch (Exception ex)
         {
-            mainLayoutService.CreateDialog("Error", ex.Message);
+            mainService.CreateDialog("Error", ex.Message);
         }
     }
 
@@ -540,11 +540,11 @@ else
     {
         if (selectedFiles == 0)
         {
-            mainLayoutService.CreateDialog("Error", "Please Select Document to Extract");
+            mainService.CreateDialog("Error", "Please Select Document to Extract");
             return;
         }
 
-        mainLayoutService.ShowLoading("Extracting PDF");
+        mainService.ShowLoading("Extracting PDF");
 
         try
         {
@@ -581,16 +581,16 @@ else
                 }
             }
 
-            mainLayoutService.HideLoading();
+            mainService.HideLoading();
             await Task.Delay(250);
 
             if (folderPickerResult.IsSuccessful)
-                mainLayoutService.CreateDialog("Result", resultText);
+                mainService.CreateDialog("Result", resultText);
 
         }
         catch (Exception ex)
         {
-            mainLayoutService.CreateDialog("Error", ex.Message);
+            mainService.CreateDialog("Error", ex.Message);
         }
     }
 
