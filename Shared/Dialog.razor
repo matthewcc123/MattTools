@@ -1,29 +1,24 @@
 ﻿@inject MainService mainLayoutService
 @using System.Diagnostics;
 
-@if (IsVisible)
-{
-    <div class="dialogOverlay @overlayAnim">
-        <div class="dialogContentWrapper @anim">
-            <div class="dialogContainer">
-                <div class="dialogTitle">@title</div>
-                <div class="dialogContent">
-                    @((MarkupString)text)
-                </div>
-                <div class="dialogBottom">
-                    <button @onclick="mainLayoutService.DestroyDialog">OK</button>
-                </div>
+<div class="dialogOverlay @overlayAnim">
+    <div class="dialogContentWrapper @anim">
+        <div class="dialogContainer">
+            <div class="dialogTitle">@title</div>
+            <div class="dialogContent">
+                @((MarkupString)text)
+            </div>
+            <div class="dialogBottom">
+                <button @onclick="mainLayoutService.DestroyDialog">OK</button>
             </div>
         </div>
     </div>
-}
-
+</div>
 
 @code {
 
     protected string title { get; set; }
     protected string text { get; set; }
-    protected bool IsVisible { get; set; }
     protected string overlayAnim { get; set; }
     protected string anim { get; set; }
 
@@ -43,11 +38,10 @@
 
     private void Open()
     {
-        IsVisible = true;
         title = mainLayoutService.DialogList.First().title;
         text = mainLayoutService.DialogList.First().text;
 
-        ChangeAnim("animate flyFadeIn", "animate fadeIn");
+        ChangeAnim("animate flyFadeIn", "animate fadeIn show");
     }
 
     private async void Close()
@@ -62,8 +56,6 @@
         else
         {
             ChangeAnim("animate flyFadeOut","animate fadeOut");
-            await Task.Delay(250);
-            IsVisible = false;
             StateHasChanged();
         }
     }
