@@ -1,4 +1,5 @@
 ﻿@import '../font/PlusJakartaSans/PlusJakartaSans.css';
+@import '../font/Inter/Inter.css';
 
 *,
 ::before,
@@ -19,12 +20,12 @@
 }
 
 html, body {
-    font-family: JktSans;
+    font-family: Inter;
     font-weight: 400;
 }
 
 pre {
-    font-family: JktSans;
+    font-family: Inter;
 }
 
 main {
@@ -171,7 +172,7 @@ textarea ~ .textareaFocus {
     height: calc(100% - 2px);
     border: 1px solid #D9D9D9;
     border-radius: 12px;
-    pointer-events: none;
+    poInter-events: none;
     transition: .2s ease-in-out;
 }
 
@@ -184,7 +185,7 @@ textarea:focus ~ .textareaFocus {
 
 table {
     width: 100%;
-    font-family: JktSans;
+    font-family: Inter;
     font-size: .75rem;
     border-collapse: separate;
     border-spacing: 0 8px;
@@ -242,9 +243,9 @@ td:last-child {
 /*Button*/
 
 button {
-    font-family: JktSans;
+    font-family: Inter;
     background-color: #0066FF;
-    font-weight: 600;
+    font-weight: 400;
     font-size: .75rem;
     color: #FFFF;
     padding: 0px 16px 0px 16px;
@@ -252,7 +253,7 @@ button {
     border: none;
     border-radius: 12px;
     height: 32px;
-    cursor: pointer;
+    cursor: poInter;
     transition: .1s ease-out;
     user-select: none;
 }
@@ -329,7 +330,7 @@ button:active {
 }
 
 #blazor-error-ui .dismiss {
-    cursor: pointer;
+    cursor: poInter;
     position: absolute;
     right: 0.75rem;
     top: 0.5rem;

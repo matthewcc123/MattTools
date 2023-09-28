@@ -10,7 +10,7 @@ namespace MattTools.Services;
 internal class ULIMergerService
 {
 
-    public int MaxAllowedFiles = 100;
+    public int MaxAllowedFiles = 9999;
     public string MergePath;
 
     //List
