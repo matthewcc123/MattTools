@@ -1,0 +1,25 @@
+﻿
+.appIcon {
+    cursor: pointer;
+    user-select: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .1s ease-out;
+    box-sizing: border-box;
+    background: #D3D3D3;
+}
+
+.appIcon:hover {
+    transition: .1s ease-out;
+    transform: translateY(-2px);
+}
+
+
+.appIcon img {
+    width: 20px;
+    filter:invert();
+}

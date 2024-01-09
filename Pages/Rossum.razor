@@ -5,6 +5,7 @@
 @using MattTools.Data;
 @using CommunityToolkit.Maui.Storage;
 @using System.Diagnostics;
+@using Newtonsoft.Json;
 
 
 @if (rossumExtractor.LoggedIn)
@@ -420,6 +421,8 @@ else
                 if (filter == "")
                     continue;
 
+                mainService.ShowLoading("Searching<br/>" + filter);
+
                 RossumData.PagingObject<RossumData.DocumentResult> documents = await rossumService.GetDocumentByFileName(filter + ".pdf", rossumExtractor.Key);
 
                 if (documents == null)
@@ -503,6 +506,8 @@ else
                     if (!annotation.selected)
                         continue;
 
+                    mainService.ShowLoading("Extracting<br/>" + annotation.fileName + ".json");
+
                     string json = await rossumService.GetJson(annotation, rossumExtractor.Key);
 
                     if (json == "")
@@ -513,7 +518,7 @@ else
                     {
                         resultText += "&#8226;" + annotation.fileName + ".json extracted <br/>";
                         string filePath = path + @"\" + annotation.fileName + ".json";
-                        
+
                         #if MACCATALYST
                             filePath = filePath.Replace(@"\","/");
                         #endif
@@ -521,6 +526,84 @@ else
                         File.WriteAllText(filePath, json);
                     }
                 }
+
+                // List<string> annotationStatusList = new List<string>();
+                // string annotationIds;
+                // Dictionary<string, string> annotationDic = new Dictionary<string, string>();
+
+                // foreach (var annotation in rossumExtractor.AnnotationDataList)
+                // {
+
+                //     if (!annotation.selected)
+                //         continue;
+
+                //     //COLLECT STATUS
+                //     if (!annotationStatusList.Contains(annotation._status))
+                //     {
+                //         annotationStatusList.Add(annotation._status);
+                //     }
+
+                //     //COLLECT IDS
+                //     if (!annotationDic.TryGetValue(annotation._status, out annotationIds))
+                //     {
+                //         annotationDic[annotation._status] = string.Empty;
+                //     }
+
+                //     annotationDic[annotation._status] += annotation.annotationID.ToString() + ",";
+                // }
+
+                // //Get Jsons
+                // foreach (var status in annotationStatusList)
+                // {
+                //     annotationIds = annotationDic[status].Remove(annotationDic[status].Length - 1, 1);
+
+                //     string queueID = rossumExtractor.QueueDataList[rossumExtractor.QueueValue].id.ToString();
+
+                //     string rawJson = await rossumService.GetJsonFast(queueID, annotationIds, status, rossumExtractor.Key);
+
+                //     if (rawJson == "")
+                //     {
+                //         resultText += "&#8226;" + annotationIds + " unable to extract JSON <br/>";
+                //     }
+                //     else
+                //     {
+
+                //         mainService.HideLoading();
+
+                //         RossumData.PagingObject<RossumData.JsonResult> rawJsonResult = JsonConvert.DeserializeObject<RossumData.PagingObject<RossumData.JsonResult>>(rawJson,
+                //         new JsonSerializerSettings
+                //         {
+                //             NullValueHandling = NullValueHandling.Ignore
+                //         });
+
+                //         foreach (var json in rawJsonResult.results)
+                //         {
+
+                //             //Create Json From Result
+                //             RossumData.PagingObject<RossumData.JsonResult> paginationObject = new RossumData.PagingObject<RossumData.JsonResult>();
+                //             paginationObject.pagination = new RossumData.Pagination();
+                //             paginationObject.pagination.total = 1;
+                //             paginationObject.pagination.total_pages = 1;
+                //             paginationObject.results = new List<RossumData.JsonResult>();
+                //             paginationObject.results.Add(json);
+
+                //             resultText += "&#8226;" + json.document.file_name.Replace(".pdf",string.Empty) + ".json extracted <br/>";
+                //             string filePath = path + @"\" + json.document.file_name.Replace(".pdf", string.Empty) + ".json";
+
+                //             #if MACCATALYST
+                //                     filePath = filePath.Replace(@"\","/");
+                //             #endif
+
+                //             File.WriteAllText(filePath, JsonConvert.SerializeObject(paginationObject));
+                //         }
+
+
+
+                //     }
+
+                // }
+
+
             }
 
             mainService.HideLoading();
@@ -559,6 +642,8 @@ else
                 {
                     if (!annotation.selected)
                         continue;
+
+                    mainService.ShowLoading("Extracting<br/>" + annotation.fileName + ".pdf");
 
                     byte[] pdfByte = await rossumService.GetPdf(annotation, rossumExtractor.Key);
 

@@ -32,7 +32,7 @@ public static class MauiProgram
         //HttpClient
         builder.Services.AddHttpClient<IRossumService, RossumService>( client =>
 		{
-			client.BaseAddress = new Uri("https://example.app.rossum.ai/api/v1/");
+			client.BaseAddress = new Uri("https://elis.app.rossum.ai/api/v1/");
 		});
 
         return builder.Build();

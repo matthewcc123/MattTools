@@ -1,0 +1,11 @@
+﻿<div class="appIcon" style="background-color: @color" @onclick="(e => OnClick.InvokeAsync())">
+    <img src="@icon" draggable="false" />
+</div>
+
+@code {
+    [Parameter] public string icon { get; set; }
+    [Parameter] public string color { get; set; }
+    [Parameter] public EventCallback OnClick { get; set; }
+
+
+}

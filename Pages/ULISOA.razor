@@ -1,0 +1,409 @@
+﻿@page "/Soa"
+@inject MainService mainService;
+@using MattTools.Data;
+@using CommunityToolkit.Maui.Storage;
+@using System.Diagnostics;
+@using NPOI.SS.UserModel;
+@using NPOI.HSSF.UserModel;
+@using NPOI.SS.Util;
+
+
+<!--Bottom Text-->
+@if (folderPath != string.Empty)
+{
+    <div class="bottomRightText">
+        <pre>@folderPath</pre>
+    </div>    
+}
+
+<div class="content animate flyFadeIn">
+
+    <!--Header-->
+    <div class="mainHeader" style="margin-top: 32px;">
+        <TitleText icon="icon/soaIcon.svg" text="SOA Combiner" />
+        <div class="flexHorizontal" style="gap: 8px; padding-right: 16px;">
+            <p style="margin-right: 8px">File Count : @Soas.Count</p>
+            <button style="width: 120px;" @onclick="PickSOA">Add</button>
+            <button style="width: 120px;" @onclick="CombineSoa">Combine</button>
+        </div>
+    </div>
+
+
+    <div class="listPanel">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 45x">No</th>
+                    <th>File</th>
+                    <th>Cabang</th>
+                    <th style="width: 45px; text-align:right;"><IconButton icon="icon/crossIcon.svg" color="#000000;" OnClick="@ClearSoa"></IconButton></th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @for (int i = 0; i < Soas.Count; i++)
+                {
+                    var soa = Soas[i];
+                    var index = i;
+
+                    <tr>
+                        <td style="width: 45px">@(i + 1)</td>
+                        <td>@soa.fileName</td>
+                        <td><input style="width: 200px; height:24px;" type="text" placeholder="Cabang" @bind="soa.cabang" /></td>
+                        <td style="width: 24px; text-align:right;"><IconButton icon="icon/crossIcon.svg" color="#f22e48;" OnClick="@(() => DeleteSoa(index))"></IconButton></td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+@code {
+
+    public string folderPath = string.Empty;
+    public ICellStyle headerStyle;
+    public List<ICellStyle> rowStyle = new List<ICellStyle>();
+    public bool rowStyled;
+
+    public class SoaExcel
+    {
+        public string filePath;
+        public string fileName;
+        public string cabang;
+        public ISheet originalSheet;
+        public ISheet sheet;
+    }
+
+    List<SoaExcel> Soas = new List<SoaExcel>();
+
+    public async Task PickSOA()
+    {
+
+        mainService.ShowLoading("Selecting File");
+
+        await AddSoa();
+
+        mainService.HideLoading();
+
+    }
+
+
+    public async Task AddSoa()
+    {
+        folderPath = string.Empty;
+
+        try
+        {
+            FilePickerFileType filePickerFileType = new FilePickerFileType(
+                    new Dictionary<DevicePlatform, IEnumerable<string>>{
+                    { DevicePlatform.MacCatalyst, new [] { "xls" } },
+                    { DevicePlatform.macOS, new [] { "xls" } },
+                    { DevicePlatform.WinUI, new [] { ".xls" } }
+                        });
+            PickOptions pickOptions = new PickOptions
+                {
+                    FileTypes = filePickerFileType
+                };
+
+
+            var result = await MainThread.InvokeOnMainThreadAsync(() => FilePicker.PickMultipleAsync(pickOptions)).ConfigureAwait(false);
+
+            if (result == null)
+                return;
+
+            //Add File to SOA
+            foreach (var file in result)
+            {
+                if (folderPath == string.Empty)
+                    folderPath = file.FullPath.Replace(file.FileName, String.Empty);
+
+                //Cabang Name
+                string cabangName = string.Empty;
+                string[] cabangNameSplit = file.FileName.Split('_');
+
+                if (cabangNameSplit != null)
+                {
+                    cabangName = cabangNameSplit[0];
+                }
+
+                //WorkBook
+                FileStream fs = new FileStream(file.FullPath, FileMode.Open, FileAccess.Read);
+                IWorkbook wb = new HSSFWorkbook(fs);
+                ISheet wbSheet = wb.GetSheetAt(0);
+
+                fs.Close();
+                wb.Close();
+
+                //Add SOA Excel to List
+                Soas.Add(new SoaExcel()
+                {
+                    filePath = file.FullPath,
+                    fileName = file.FileName,
+                    cabang = cabangName,
+                    originalSheet = wbSheet
+                });
+
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+            mainService.CreateDialog("Error", ex.Message);
+        }
+
+    }
+
+    public async Task CombineSoa()
+    {
+        if (Soas.Count == 0)
+        {
+            mainService.CreateDialog("Error", "Add SOA to combine.");
+            return;
+        }
+
+        try
+        {
+            HSSFWorkbook wb = new HSSFWorkbook(); //Empty Workbook
+            ISheet ws = wb.CreateSheet("Sheet1");
+            bool copyHeader = false;
+            rowStyle.Clear();
+            bool rowStyled = false;
+
+            mainService.ShowLoading("Add Cabang");
+
+            await Task.Delay(250);
+
+            foreach (var soa in Soas)
+            {
+                soa.sheet = soa.originalSheet;
+
+                mainService.ShowLoading("Editing<br/>" + soa.cabang);
+                await Task.Run(() => AddCabang(soa.sheet, soa.cabang));
+
+                if (!rowStyled)
+                {
+                    await Task.Run(() => GetRowStyle(ws, soa.sheet));
+                    rowStyled = true;
+                }
+
+                if (!copyHeader)
+                {
+                    await Task.Run(() => CopyHeader(ws, soa.sheet));
+                    copyHeader = true;
+                }
+
+                mainService.ShowLoading("Adding<br/>" + soa.cabang);
+
+                await Task.Run(() => CopyRows(ws, soa.sheet));
+
+
+            }
+
+            mainService.ShowLoading("Exporting<br/>MergedSOA.xls");
+
+            //Write Merged
+            MemoryStream mstream = new MemoryStream();
+            wb.Write(mstream);
+
+            if (!System.IO.Directory.Exists(folderPath + @"\Merged"))
+                System.IO.Directory.CreateDirectory(folderPath + @"\Merged");
+
+            string newFilePath = folderPath + @"\Merged\MergedSOA.xls";
+
+            #if MACCATALYST
+                fileName = fileName.Replace(@"\", "/");
+            #endif
+
+            FileStream newFile = new FileStream(newFilePath, FileMode.Create, System.IO.FileAccess.Write);
+            wb.Write(newFile);
+            newFile.Close();
+
+            //Close Workbook
+            wb.Close();
+
+            mainService.HideLoading();
+            mainService.CreateDialog("Success!", folderPath + "MergedSOA.xls");
+        }
+        catch (Exception ex)
+        {
+            mainService.HideLoading();
+            mainService.CreateDialog("Error", ex.Message);
+        }
+
+    }
+
+    public void CopyHeader(ISheet mainSheet, ISheet soaSheet)
+    {
+        try
+        {
+            //Copy Header
+            IRow mainRow = mainSheet.CreateRow(0);
+            IRow soaRow = soaSheet.GetRow(0);
+
+            headerStyle = mainSheet.Workbook.CreateCellStyle();
+            headerStyle.CloneStyleFrom(soaRow.Cells[0].CellStyle);
+
+
+            for (int a = 0; a < soaRow.LastCellNum; a++)
+            {
+                mainRow.CreateCell(a);
+                CloneCell(soaRow.Cells[a], mainRow.Cells[a]);
+                mainRow.Cells[a].CellStyle = headerStyle;
+                mainSheet.AutoSizeColumn(a);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            mainService.CreateDialog("Error", ex.Message);
+        }
+
+    }
+
+    public void GetRowStyle(ISheet mainSheet, ISheet soaSheet)
+    {
+        rowStyle.Clear();
+
+        IRow row = soaSheet.GetRow(1);
+
+        for (int i = 0; i < row.LastCellNum; i++)
+        {
+            ICellStyle style = mainSheet.Workbook.CreateCellStyle();
+            style.CloneStyleFrom(row.Cells[i].CellStyle);
+            style.FillPattern = FillPattern.NoFill;
+
+            rowStyle.Add(style);
+        }
+    }
+
+    public void CopyRows(ISheet mainSheet, ISheet soaSheet)
+    {
+        try
+        {
+            int startMainRow = mainSheet.LastRowNum;
+
+            for (int row = 1; row <= soaSheet.LastRowNum; row++)
+            {
+
+                IRow mainRow = mainSheet.CreateRow(startMainRow + row);
+                IRow soaRow = soaSheet.GetRow(row);
+
+                for (int col = 0; col < soaRow.LastCellNum; col++)
+                {
+                    ICell mainCell = mainRow.CreateCell(col);
+                    mainCell.CellStyle = rowStyle[col];
+                    CloneCell(soaRow.GetCell(col), mainCell);
+                }
+
+            }
+
+            GC.Collect();
+
+        }
+        catch (Exception ex)
+        {
+            mainService.CreateDialog("Error", ex.Message);
+        }
+
+    }
+
+    public void AddCabang(ISheet ws, string cabang)
+    {
+
+        if (ws != null)
+        {
+            //Add Column
+            int totalRow = ws.LastRowNum;
+
+            //Shifting Cell
+            for (int i = 0; i <= totalRow; i++)
+            {
+                IRow row = ws.GetRow(i);
+                InsertColumn(row, 1);
+
+                //Add Cabang Column on Numba 2
+                row.Cells[2].SetCellType(CellType.String);
+                if (i == 0)
+                {
+                    row.Cells[2].SetCellValue("Cabang");
+                }
+                else
+                {
+                    row.Cells[2].SetCellValue(cabang);
+                }
+
+            }
+
+        }
+    }
+
+    public void InsertColumn(IRow row, int index)
+    {
+        int totalColumn = row.LastCellNum - 1;
+        for (int i = totalColumn; i > index; i--)
+        {
+            ICell oldCell = row.Cells[i];
+            ICell newCell = row.CreateCell(i + 1, oldCell.CellType);
+            CloneCell(oldCell, newCell);
+            CloneCellStyle(oldCell, newCell);
+        }
+
+    }
+
+    public void CloneCell(ICell oldCell, ICell newCell)
+    { 
+
+
+        switch (oldCell.CellType)
+        {
+            case CellType.String:
+                newCell.SetCellValue(oldCell.StringCellValue);
+                break;
+            case CellType.Numeric:
+                newCell.SetCellValue(oldCell.NumericCellValue);
+                break;
+            case CellType.Boolean:
+                newCell.SetCellValue(oldCell.BooleanCellValue);
+                break;
+            case CellType.Formula:
+                newCell.SetCellValue(oldCell.CellFormula);
+                break;
+            case CellType.Error:
+                newCell.SetCellValue(oldCell.ErrorCellValue);
+                break;
+            case CellType.Blank:
+            case CellType.Unknown:
+                break;
+        }
+    }
+
+    public void CloneCellStyle(ICell oldCell, ICell newCell)
+    {
+        newCell.CellStyle = oldCell.CellStyle;
+    }
+
+    public void CloneCellStyle(IWorkbook wb, ICell oldCell, ICell newCell)
+    {
+
+        ICellStyle newStyle = wb.CreateCellStyle();
+        newStyle.CloneStyleFrom(oldCell.CellStyle);
+
+        newCell.CellStyle = newStyle;
+    }
+
+    public void DeleteSoa(int index)
+    {
+        Soas.RemoveAt(index);
+    }
+
+    public void ClearSoa()
+    {
+        Soas.Clear();
+    }
+
+}

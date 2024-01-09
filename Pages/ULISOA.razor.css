@@ -1,0 +1,5 @@
+﻿.listPanel {
+    box-sizing: border-box;
+    height: calc(100vh - 164px);
+    overflow: scroll;
+}

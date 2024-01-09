@@ -295,5 +295,59 @@ public class RossumData
     }
     #endregion
 
+    #region ExportJson
+
+    public class JsonChild
+    {
+        public string category { get; set; }
+        public string schema_id { get; set; }
+        public double rir_confidence { get; set; }
+        public string value { get; set; }
+        public string type { get; set; }
+        public List<JsonChild> children { get; set; }
+    }
+
+    public class JsonContent
+    {
+        public string category { get; set; }
+        public string schema_id { get; set; }
+        public List<JsonChild> children { get; set; }
+    }
+
+    public class JsonDocument
+    {
+        public string url { get; set; }
+        public string file_name { get; set; }
+        public string file { get; set; }
+    }
+
+    public class JsonMetadata
+    {
+    }
+
+    public class JsonResult
+    {
+        public string url { get; set; }
+        public string status { get; set; }
+        public DateTime arrived_at { get; set; }
+        public object exported_at { get; set; }
+        public JsonDocument document { get; set; }
+        public object modifier { get; set; }
+        public JsonSchema schema { get; set; }
+        public JsonMetadata metadata { get; set; }
+        public List<JsonContent> content { get; set; }
+        public bool automated { get; set; }
+        public object modified_at { get; set; }
+        public object assigned_at { get; set; }
+    }
+
+
+    public class JsonSchema
+    {
+        public string url { get; set; }
+    }
+
+    #endregion
+
 }
 

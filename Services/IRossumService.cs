@@ -11,6 +11,7 @@ public interface IRossumService
     Task<RossumData.PagingObject<RossumData.DocumentResult>> GetDocumentByFileName(string name, string key);
     Task<RossumData.AnnotationResult> GetAnnotation(string url, string key);
     Task<string> GetJson(RossumData.AnnotationData annotation, string key);
+    Task<string> GetJsonFast(string queueID, string annotation_ids, string status, string key);
     Task<byte[]> GetPdf(RossumData.AnnotationData annotation, string key);
     string GetBaseAddress();
 
